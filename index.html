@@ -213,7 +213,7 @@ nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surf
 .syncdot.local{background:var(--muted)}
 
 /* ---- v3: clearer, larger, cats, clients ---- */
-:root{--sC:#1E8A8A; --lw:104px; --vet:#D32F2F}
+:root{--sC:#1E8A8A; --lw:84px; --vet:#D32F2F}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--sC:#5CC6C6; --vet:#FF6B5E}}
 body{font-size:16px}
 .sub{font-size:15px}
@@ -298,6 +298,11 @@ h2[id]{scroll-margin-top:84px}
 .vx{color:var(--vet);font-weight:800}
 .bar .vx{display:inline-grid;place-items:center;width:17px;height:17px;border-radius:50%;background:#fff;color:#D32F2F;font-size:11px;line-height:1;vertical-align:-3px}
 .bar.half .vx{width:13px;height:13px;font-size:9px;vertical-align:-2px}
+
+/* ---- narrower kennel column, so more of the calendar fits on a phone ---- */
+.lab{padding:4px 6px}
+.lab b{overflow-wrap:anywhere}
+.lab small{line-height:1.15}
 </style>
 </head>
 <body>
@@ -517,6 +522,8 @@ const CAGE=Object.fromEntries(CAGES.map(c=>[c.id,c]));
 const ZONES={dog:['small','wood','rec2','rec1','large'],cat:['cats']};
 const cagesOf=k=>CAGES.filter(c=>c.sp===k&&!c.off);
 const cname=c=>{c=typeof c==='string'?CAGE[c]:c;switch(c.zone){case'small':return `${T.cage} ${c.n}`;case'wood':return `${T.wood} ${c.n}`;case'rec2':return T.rec2;case'rec1':return `${T.rec1} · ${c.n}`;case'cats':return `${T.catk} ${c.n}`;default:return `${T.large} ${c.n}`}};
+/* short name for the narrow calendar column: the row group already says these are cat kennels */
+const clabel=c=>c.zone==='cats'?`${T.sp1.cat} ${c.n}`:cname(c);
 const chint=c=>c.off?T.h_off:c.res?`${c.res} (Lucy)`:c.sp==='cat'?T.h_cat(c.normal):T[c.hint];
 const TIER={1:['t1',''],2:['t2',''],3:['t3','warn'],4:['t4','warn'],5:['t5','warn']};
 
@@ -918,7 +925,7 @@ function viewCal(){
     const note=z==='rec1'?T.z_rec1_note:z==='large'?T.z_large_note:z==='cats'?T.z_cats_note:'';
     h+=`<div class="row zrow"><div class="lab">${T['z_'+z]}${note?` <em>· ${note}</em>`:''}</div></div>`;
     CAGES.filter(c=>c.zone===z).forEach(c=>{
-      h+=`<div class="row crow${c.res?' res':''}${c.off?' off':''}" data-cage="${c.id}"><div class="lab"><b>${cname(c)}</b><small>${chint(c)}</small></div><div class="track" style="width:${W}">${c.off?'':tcol+cageBars(c)}</div></div>`;
+      h+=`<div class="row crow${c.res?' res':''}${c.off?' off':''}" data-cage="${c.id}"><div class="lab"><b>${clabel(c)}</b><small>${chint(c)}</small></div><div class="track" style="width:${W}">${c.off?'':tcol+cageBars(c)}</div></div>`;
     });
   });
   return h+`</div></div>`;
