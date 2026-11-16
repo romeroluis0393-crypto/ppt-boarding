@@ -527,7 +527,7 @@ const TIER={1:['t1',''],2:['t2',''],3:['t3','warn'],4:['t4','warn'],5:['t5','war
    (shared, with sign-in).  To go live: run supabase_setup.sql in the
    project, create the staff users, and fill SUPABASE below.
    ============================================================ */
-const SUPABASE={url:'',anonKey:''};   // ← project URL + anon (public) key
+const SUPABASE={url:"https://sohwtowpyybkieinezgw.supabase.co",anonKey:"sb_publishable_JszoYyIvp5cCiblRzElzSg_uwyU-BHK"};   // ← project URL + anon (public) key
 const uuid=()=>(typeof crypto!=='undefined'&&crypto.randomUUID)?crypto.randomUUID():'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return (c==='x'?r:(r&3|8)).toString(16)});
 
 let families=[],pets=[],bookings=[],observations=[];
