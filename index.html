@@ -805,7 +805,8 @@ function toast(msg,bad){const t=document.createElement('div');t.className='toast
 const telDigits=p=>String(p||'').replace(/[^\d+]/g,'');
 const telHTML=p=>p?`<span class="tel">${esc(p)}</span><span class="telbtns"><a class="btn sm" href="tel:${telDigits(p)}">${T.call}</a><a class="btn sm" href="https://wa.me/${telDigits(p).replace('+','')}" target="_blank" rel="noopener">WhatsApp</a></span>`:`<span class="hint">${T.no_phone}</span>`;
 const spSwitch=()=>`<div class="spsw" role="group" aria-label="${T.sp_pick}">${['dog','cat'].map(k=>`<button type="button" data-act="sp" data-sp="${k}" aria-pressed="${sp===k}">${T.Sp[k]}</button>`).join('')}</div>`;
-const statusFoot=()=>`<p class="foot">${DB===Local?T.st_local:`${T.st_shared} · ${esc(Store.user)} · <button class="linkbtn" data-act="logout">${T.logout}</button>`}</p>`;
+/* only a discreet way out, and only at the bottom of Clients */
+const signOutFoot=()=>DB===Local?'':`<p class="foot"><button class="linkbtn" data-act="logout">${T.logout}</button></p>`;
 function chrome(){
   $('#hsub').textContent=T.sub;$('#hdate').textContent=fmt(TODAY);
   $$('[data-t]').forEach(el=>el.textContent=T[el.dataset.t]);
@@ -894,7 +895,7 @@ function viewToday(){
   h+=`<h2 id="sec-out">${T.leaving}</h2>`+(outs.length?`<div class="list">${outs.map(b=>item(b)).join('')}</div>`:`<div class="empty">${T.nobody_out}</div>`);
   h+=`<h2 id="sec-stay">${T.staying}</h2>`+(rest.length?`<div class="list">${rest.map(b=>item(b,T.leaves(fmt(b.end)))).join('')}</div>`:`<div class="empty">${T.nobody_stay}</div>`);
   h+=`<h2>${T.Sp[other]}</h2><button class="item" data-act="sp" data-sp="${other}"><span class="tx"><b>${T.Sp[other]}</b><span>${T.other_sp(oT,oA)}</span></span><span class="rt go">${T.see}</span></button>`;
-  return h+statusFoot();
+  return h;
 }
 
 /* ---------- Calendar ---------- */
@@ -1083,7 +1084,7 @@ function viewClients(){
   return `<h1>${T.cl_title}</h1><p class="sub">${T.cl_sub}</p>
   <div class="card"><div class="field"><label for="cl-q">${T.cl_search}</label><input id="cl-q" type="search" value="${esc(cq)}" placeholder="${T.cl_ph}" autocomplete="off"></div>
    <button class="btn blue" type="button" data-act="newclient">${T.cl_new}</button></div>
-  <div id="cl-list" class="list" style="margin-top:12px"></div>${statusFoot()}`;
+  <div id="cl-list" class="list" style="margin-top:12px"></div>${signOutFoot()}`;
 }
 const famOnSite=id=>bookings.some(b=>b.fam===id&&covers(b,TODAY));
 function clientList(){
