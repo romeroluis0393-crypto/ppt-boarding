@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#FFFFFF">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#FFFFFF">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#182435">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -122,6 +123,13 @@ h2{font-weight:800;font-size:17px;margin:22px 0 8px;letter-spacing:-.01em}
 .bar.half .sz{width:15px;height:15px;font-size:8px}
 .bar .nm{overflow:hidden;text-overflow:ellipsis;margin-left:3px}
 .bar .sz{box-shadow:0 0 0 1.5px rgba(255,255,255,.9)}
+.bar .sz.cnt{background:#fff;color:#1E2F45;font-size:11px}
+/* short bar (one night = 46 px): tighter padding and slightly smaller circles so ⚠ + number fit */
+.bar.nw{padding:0 4px;gap:2px}
+.bar.nw .ax{width:16px;height:16px;font-size:11px;margin-right:0}
+.bar.nw .sz{width:18px;height:18px;font-size:10px}
+.bar.half .sz.cnt,.bar.half.nw .sz{width:15px;height:15px;font-size:8px}
+.bar.half.nw .ax{width:14px;height:14px;font-size:9px}
 .bar.lift{opacity:.35}
 .ghost{position:fixed;z-index:60;pointer-events:none;opacity:.92;box-shadow:0 10px 28px rgba(0,0,0,.28);transform:translate(-50%,-50%) scale(1.04);cursor:grabbing}
 .ghost .sz{box-shadow:0 0 0 1.5px rgba(255,255,255,.9)}
@@ -180,14 +188,12 @@ nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surf
 /* ---- sheets ---- */
 .scrim{position:fixed;inset:0;background:var(--scrim);z-index:40}
 .sheet{position:fixed;left:0;right:0;bottom:0;z-index:41;background:var(--surface);border-radius:18px 18px 0 0;max-height:88%;overflow:auto;max-width:640px;margin:0 auto;
-  padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px));padding-block:10px calc(22px + env(safe-area-inset-bottom,0px));animation:up .22s ease-out;-webkit-overflow-scrolling:touch}
-@keyframes up{from{transform:translateY(30px);opacity:.4}to{transform:none;opacity:1}}
-@media (prefers-reduced-motion:reduce){.sheet{animation:none}}
+  padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px));padding-block:10px calc(22px + env(safe-area-inset-bottom,0px));-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 .grab{width:40px;height:4px;border-radius:2px;background:var(--line);margin:0 auto 12px}
 .sheet h2{margin:0 0 2px;font-size:22px;color:var(--accent)}
 .shead{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
 .kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:14px;margin:12px 0}
-.kv dt{color:var(--muted)}.kv dd{margin:0;min-width:0}
+.kv dt{color:var(--muted)}.kv dd{margin:0;min-width:0;overflow-wrap:anywhere}
 .dogcard{border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:8px;width:100%;text-align:left;font:inherit;color:inherit;background:var(--surface);cursor:pointer}
 .dogcard .hd{display:flex;align-items:center;gap:8px;margin-bottom:6px}
 .dogcard .hd b{font-size:16px}
@@ -207,8 +213,9 @@ nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surf
 .chk{display:flex;gap:10px;align-items:flex-start;font-size:14px;cursor:pointer}
 .chk input{width:22px;height:22px;min-height:0;padding:0;flex:0 0 auto;margin:0;accent-color:var(--accent)}
 .sheet h2.sech{font-size:16px;color:var(--ink);margin:20px 0 8px}
-.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));background:var(--accent);color:#fff;padding:10px 16px;border-radius:999px;font-weight:700;font-size:14px;z-index:70;max-width:calc(100% - 32px);text-align:center}
-.toast.bad{background:var(--danger)}
+.toasts{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:70;display:flex;flex-direction:column;align-items:center;gap:8px;width:max-content;max-width:calc(100% - 32px);pointer-events:none}
+.toast{background:var(--accent);color:#fff;padding:10px 16px;border-radius:999px;font-weight:700;font-size:14px;max-width:100%;text-align:center}
+.toast.bad{background:var(--al-fill)}
 .syncdot{width:8px;height:8px;border-radius:50%;background:var(--ok);display:inline-block}
 .syncdot.local{background:var(--muted)}
 
@@ -266,13 +273,14 @@ h2[id]{scroll-margin-top:84px}
 .foot{font-size:13px;color:var(--muted);margin:26px 0 0;text-align:center}
 .tel{font-variant-numeric:tabular-nums;font-weight:700}
 .telrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.telbtns{display:inline-flex;gap:6px}
+.telbtns{display:inline-flex;gap:6px;flex-wrap:wrap;max-width:100%}
 .petcard{border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:8px;background:var(--surface)}
 .petcard .hd{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap}
 .petcard .hd b{font-size:17px}
 .petcard .hd .go{margin-left:auto}
+.petcard .hd .hint{order:3;flex-basis:100%}
 .petcard dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:0;font-size:15px}
-.petcard dt{color:var(--muted)}.petcard dd{margin:0}
+.petcard dt{color:var(--muted)}.petcard dd{margin:0;min-width:0;overflow-wrap:anywhere}
 .grow{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;border-top:1px solid var(--line);margin-top:10px;padding-top:10px}
 .warnt{color:var(--warn)}
 .alert.item{background:var(--warn-soft);border-color:transparent;align-items:flex-start;min-height:0}
@@ -308,6 +316,85 @@ h2[id]{scroll-margin-top:84px}
 .medline{display:block;margin-top:4px}
 .delbox{border:2px solid var(--danger);background:var(--danger-soft);border-radius:12px;padding:12px 14px;width:100%}
 .delbox p{margin:6px 0 0;font-size:15px}
+
+/* ---- behaviour alerts (always red, always first) ---- */
+:root{--al-fill:#B3261E}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--al-fill:#C62828}}   /* white text needs a deep red, also in dark mode */
+.alseg button[aria-pressed="true"]{background:var(--al-fill);border-color:var(--al-fill);color:#fff}
+.alerts{background:var(--danger-soft);border:2px solid var(--danger);border-radius:12px;padding:10px 12px;margin:12px 0 0;color:var(--danger)}
+.alerts>b{font-size:17px;font-weight:800}
+.alerts .altags{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.alerts .chip{background:var(--al-fill);color:#fff;font-size:14px;white-space:normal}
+.alerts p{margin:6px 0 0;font-size:15px;font-weight:700}
+.alert.item.al{background:var(--danger-soft);border:2px solid var(--danger)}
+/* long observation texts in "Today": 3 lines and "…"; the whole text is in the pet's sheet. Alerts are never cut. */
+.clamp3{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;line-clamp:3;overflow:hidden;min-width:0}
+.alert.item.al>b,.alert.item.al .ach{color:var(--danger)}
+.ax{display:inline-grid;place-items:center;width:18px;height:18px;border-radius:50%;background:#fff;color:#C62828;font-size:12px;font-weight:800;line-height:1;flex:0 0 auto;box-shadow:0 0 0 1.5px #C62828}
+.bar .ax{margin-right:1px}
+.bar.half .ax{width:14px;height:14px;font-size:9px}
+
+/* ---- waiting for the database: a small trotting dog (or cat) ---- */
+.busy{position:fixed;left:50%;transform:translateX(-50%);top:calc(70px + env(safe-area-inset-top,0px));z-index:65;display:flex;align-items:center;gap:8px;background:var(--surface);color:var(--ink);border:2px solid var(--accent-soft);border-radius:999px;padding:4px 16px 4px 8px;font-weight:800;font-size:15px;box-shadow:0 6px 18px rgba(0,0,0,.15);pointer-events:none}
+.loading{display:flex;flex-direction:column;align-items:center;gap:8px;padding:48px 12px;color:var(--muted);font-weight:800;font-size:18px;text-align:center}
+.loading.sm{padding:6px 0;flex-direction:row;justify-content:center;font-size:16px}
+.pup{width:56px;height:42px;color:var(--accent);flex:0 0 auto;overflow:visible}
+.loading .pup{width:110px;height:82px}
+.loading.sm .pup{width:56px;height:42px}
+.pup .bob{animation:pbob .3s ease-in-out infinite alternate}
+.pup .tail{transform-box:view-box;transform-origin:15px 22px;animation:pwag .25s ease-in-out infinite alternate}
+.pup.cat .tail{animation-duration:.6s}
+.pup .lg{transform-box:fill-box;transform-origin:50% 0;animation:pstep .3s ease-in-out infinite alternate}
+.pup .lg.b{animation-direction:alternate-reverse}
+@keyframes pbob{from{transform:translateY(0)}to{transform:translateY(-2px)}}
+@keyframes pwag{from{transform:rotate(-18deg)}to{transform:rotate(18deg)}}
+@keyframes pstep{from{transform:rotate(16deg)}to{transform:rotate(-16deg)}}
+@media (prefers-reduced-motion:reduce){.pup .bob,.pup .tail,.pup .lg{animation:none}}
+
+/* ============================================================
+   Motion & touch: short (120–240 ms), quiet, never in the way.
+   Only transform / opacity move. "Reduce motion" keeps the fades and colour, drops the movement.
+   ============================================================ */
+:root{--ease-out:cubic-bezier(0.23,1,0.32,1); --ease-drawer:cubic-bezier(0.32,0.72,0,1)}
+html{-webkit-tap-highlight-color:transparent}
+button,a,select,label.chk{touch-action:manipulation}
+button,.tab,.chip{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+/* pressed: the button answers the moment the finger lands */
+.btn,.item,.pick,.seg button,.spsw button,.stat,.aplus,.dogcard,.tab,.lang button,.linkbtn,.ihead{transition:transform 120ms var(--ease-out),filter 120ms ease,opacity 120ms ease}
+.btn:active,.item:active,.pick:active,.seg button:active,.spsw button:active,button.stat:active,.aplus:active,.dogcard:active{transform:scale(.97);filter:brightness(.93)}
+.tab:active{transform:scale(.93)}
+.lang button:active{filter:brightness(.9)}
+.linkbtn:active,.ihead:active{opacity:.6}
+.btn:disabled:active{transform:none;filter:none}
+/* calendar bars: give way under the finger while it is held, then lift */
+.bar{transition:transform 120ms var(--ease-out),opacity 150ms ease}
+.bar.press{transform:scale(.96)}
+.ghost{transition:none;left:0;top:0}
+.bar.arrive{animation:fadein 200ms var(--ease-out)}
+/* sheets: rise from the bottom, go back down the same way (faster), scrim fades */
+#sheetRoot .scrim{opacity:0;transition:opacity 180ms ease}
+#sheetRoot .sheet{transform:translateY(100%);transition:transform 180ms var(--ease-out),opacity 180ms ease}
+#sheetRoot.show .scrim{opacity:1;transition-duration:200ms}
+#sheetRoot.show .sheet{transform:none;transition:transform 240ms var(--ease-drawer)}
+#sheetRoot.closing .sheet{opacity:0}
+#sheetRoot.closing,#sheetRoot.closing *{pointer-events:none}
+/* toasts */
+.toast{opacity:0;transform:translateY(8px);transition:opacity 200ms var(--ease-out),transform 200ms var(--ease-out)}
+.toast.in{opacity:1;transform:none}
+.toast.out{opacity:0;transform:none;transition-duration:150ms}
+/* "Saving…" pill */
+.busy{opacity:0;transition:opacity 150ms ease}
+.busy.on{opacity:1}
+/* a new screen chosen by the person (tab, language, dogs/cats): a quick fade, no sliding */
+main.fade{animation:fadein 150ms ease-out}
+@keyframes fadein{from{opacity:0}}
+@media (prefers-reduced-motion:reduce){
+  .btn:active,.item:active,.pick:active,.seg button:active,.spsw button:active,button.stat:active,.aplus:active,.dogcard:active,.tab:active,.bar.press{transform:none}
+  #sheetRoot .sheet,#sheetRoot.show .sheet{transform:none;opacity:0;transition:opacity 150ms ease}
+  #sheetRoot.show .sheet{opacity:1}
+  #sheetRoot.closing .sheet{opacity:0}
+  .toast,.toast.in,.toast.out{transform:none}
+}
 </style>
 </head>
 <body>
@@ -325,6 +412,8 @@ h2[id]{scroll-margin-top:84px}
   <button class="tab" data-view="clients"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6M16 4.8a3.5 3.5 0 010 6.4M18 14.3c2.1.8 3.5 2.8 3.5 5.7"/></svg><span data-t="tab_clients"></span></button>
 </nav>
 <div id="sheetRoot"></div>
+<div id="busy" class="busy" role="status" aria-live="polite" hidden></div>
+<div id="toasts" class="toasts"></div>
 <datalist id="breeds"></datalist>
 
 <script>
@@ -406,6 +495,10 @@ en:{
   med_from:'Treatment from', med_to:'Until (last day)', med_hint:'Leave the dates empty if it is taken every day with no end.', med_err:'The last day has to be on or after the first day.',
   med_day:(n,t)=>`Day ${n} of ${t}`, med_ends:d=>`ends ${d}`, med_last:'Last day', med_ended:d=>`Finished ${d}`, med_starts:d=>`Starts ${d}`,
   db_err:'Could not save', db_down:'Could not reach the database.', retry:'Try again',
+  alerts:'Alerts', al_note:'Details (optional)', al_ph:'E.g. always walk on a short lead', lg_alert:'behaviour alert',
+  al:{nomix:'Do not mix with other animals',strangers:'Aggressive with strangers',bites:'May bite',escapes:'Escapes',fearful:'Fearful',cats:'Reactive with cats',muzzle:'Needs a muzzle'},
+  m_alone:'⚠ Do not mix with other animals: it has to be alone in its kennel', al_back:'Go back and choose another option.',
+  busy_start:'Loading…', busy_login:'Signing in…', busy_load:'Updating…', busy_save:'Saving…',
 },
 es:{
   sub:'Boarding', tab_today:'Hoy', tab_cal:'Calendario', tab_new:'Nueva', tab_clients:'Clientes',
@@ -426,7 +519,7 @@ es:{
   tonight_n:{dog:'Perros esta noche',cat:'Gatos esta noche'}, incl_lucy:n=>`incluye ${n} de Lucy`, free_tonight:'Jaulas libres esta noche',
   arriving:'Entran hoy', leaving:'Salen hoy', attention:'Atención', nobody_in:'Nadie entra hoy.', nobody_out:'Nadie sale hoy.', nobody_stay:'Nadie más se queda esta noche.',
   staying:'Se quedan esta noche', leaves:d=>`sale ${d}`,
-  other_sp:(n,a)=>`${n} esta noche · ${a} entran hoy`, see:'Ver ›',
+  other_sp:(n,a)=>`${n} esta noche · ${a} ${a===1?'entra':'entran'} hoy`, see:'Ver ›',
   emg_rec1:(n,r)=>`${n} está en ${cname(r)}: ${CAGE[r].res} tiene que dormir con otro perro de Lucy.`,
   emg_large:(n,c)=>`${n} está en ${c}: jaula grande, último recurso.`,
   emg_over:(n,c,k)=>`${n}: un gato más de lo habitual en ${c} (normalmente caben ${k}).`,
@@ -481,12 +574,16 @@ es:{
   med_from:'Tratamiento desde', med_to:'Hasta (último día)', med_hint:'Deja las fechas vacías si lo toma siempre, sin fecha de fin.', med_err:'El último día tiene que ser igual o posterior al primero.',
   med_day:(n,t)=>`Día ${n} de ${t}`, med_ends:d=>`termina ${d}`, med_last:'Último día', med_ended:d=>`Terminó ${d}`, med_starts:d=>`Empieza ${d}`,
   db_err:'No se pudo guardar', db_down:'No se pudo conectar con la base de datos.', retry:'Reintentar',
+  alerts:'Alertas', al_note:'Detalles (opcional)', al_ph:'Ej.: sacarlo siempre con correa corta', lg_alert:'alerta de comportamiento',
+  al:{nomix:'No mezclar con otros animales',strangers:'Agresivo con desconocidos',bites:'Puede morder',escapes:'Se escapa',fearful:'Miedoso',cats:'Reactivo con gatos',muzzle:'Necesita bozal'},
+  m_alone:'⚠ No mezclar con otros animales: tiene que ir solo en su jaula', al_back:'Vuelve atrás y elige otra opción.',
+  busy_start:'Cargando…', busy_login:'Entrando…', busy_load:'Actualizando…', busy_save:'Guardando…',
 }};
 const LS={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
 let lang=LS.get('ppt.lang')||((navigator.language||'en').startsWith('es')?'es':'en');
 let T=I18N[lang];
 let sp=LS.get('ppt.sp')==='cat'?'cat':'dog';          /* which animals the screen is showing */
-function setLang(l){syncForms();lang=l;T=I18N[l];LS.set('ppt.lang',l);document.documentElement.lang=l;chrome();render()}
+function setLang(l){if(l===lang)return;syncForms();lang=l;T=I18N[l];LS.set('ppt.lang',l);document.documentElement.lang=l;chrome();render();fadeMain()}
 const nP=(n,k)=>`${n} ${T.spn[k][n===1?0:1]}`;
 
 /* ============================================================
@@ -581,13 +678,13 @@ const Remote={
     const [f,p,b,o]=await Promise.all([this.sb.from('families').select('*'),this.sb.from('pets').select('*'),
       this.sb.from('bookings').select('*').gte('end_date',from),this.sb.from('observations').select('*').gte('at',from)]);
     return {families:this._q(f).map(x=>({id:x.id,name:x.name,phone:x.phone||'',by:x.created_by||'',cAt:x.created_at||'',ub:x.updated_by||'',uAt:x.updated_at||''})),
-      pets:this._q(p).map(x=>({id:x.id,fam:x.family_id,species:x.species,name:x.name,breed:x.breed||'',size:x.size,food:x.food||'',meds:x.meds||'',notes:x.notes||'',medStart:x.meds_start||'',medEnd:x.meds_end||'',by:x.created_by||'',cAt:x.created_at||'',ub:x.updated_by||'',uAt:x.updated_at||''})),
+      pets:this._q(p).map(x=>({id:x.id,fam:x.family_id,species:x.species,name:x.name,breed:x.breed||'',size:x.size,food:x.food||'',meds:x.meds||'',notes:x.notes||'',medStart:x.meds_start||'',medEnd:x.meds_end||'',alerts:x.alerts||[],alertsNote:x.alerts_note||'',by:x.created_by||'',cAt:x.created_at||'',ub:x.updated_by||'',uAt:x.updated_at||''})),
       bookings:this._q(b).map(x=>({id:x.id,fam:x.family_id,pets:x.pet_ids||[],cage:x.cage,start:x.start_date,end:x.end_date,groom:x.grooming_ids||[],vet:x.vet_ids||[],by:x.created_by||'',cAt:x.created_at||'',ub:x.updated_by||'',uAt:x.updated_at||''})),
       observations:this._q(o).map(x=>({id:x.id,dog:x.pet_id,at:x.at,tags:x.tags||[],text:x.text||'',kind:x.kind||'note',issue:x.issue_id||null,status:x.status||'',by:x.created_by||'',cAt:x.created_at||'',ub:x.updated_by||'',uAt:x.updated_at||''}))};
   },
   async insertFamily(f){this._q(await this.sb.from('families').insert({id:f.id,name:f.name,phone:f.phone}))},
   async updateFamily(f){this._q(await this.sb.from('families').update({name:f.name,phone:f.phone}).eq('id',f.id))},
-  _pet(d){return {name:d.name,breed:d.breed,size:d.size,food:d.food,meds:d.meds,notes:d.notes,meds_start:d.medStart||null,meds_end:d.medEnd||null}},
+  _pet(d){return {name:d.name,breed:d.breed,size:d.size,food:d.food,meds:d.meds,notes:d.notes,meds_start:d.medStart||null,meds_end:d.medEnd||null,alerts:d.alerts||[],alerts_note:d.alertsNote||null}},
   async insertPet(d){this._q(await this.sb.from('pets').insert(Object.assign({id:d.id,family_id:d.fam,species:d.species},this._pet(d))))},
   async updatePet(d){this._q(await this.sb.from('pets').update(this._pet(d)).eq('id',d.id))},
   async insertBooking(b){this._q(await this.sb.from('bookings').insert({id:b.id,family_id:b.fam,pet_ids:b.pets,cage:b.cage,start_date:b.start,end_date:b.end,grooming_ids:b.groom,vet_ids:b.vet}))},
@@ -602,7 +699,7 @@ const Store={
   user:'', pending:0, chain:Promise.resolve(),
   _apply(d){
     families=(d.families||[]).map(f=>Object.assign({phone:''},f));
-    pets=(d.pets||d.dogs||[]).map(p=>Object.assign({species:'dog',breed:'',food:'',meds:'',notes:'',medStart:'',medEnd:''},p));          /* older saves had only dogs */
+    pets=(d.pets||d.dogs||[]).map(p=>{const x=Object.assign({species:'dog',breed:'',food:'',meds:'',notes:'',medStart:'',medEnd:'',alertsNote:''},p);x.alerts=Array.isArray(p.alerts)?p.alerts.slice():[];return x});          /* older saves had only dogs */
     const known=new Set(pets.map(p=>p.id));
     bookings=(d.bookings||[]).map(b=>({id:b.id,fam:b.fam,pets:(b.pets||b.dogs||[]).filter(id=>known.has(id)),cage:b.cage,start:b.start,end:b.end,groom:b.groom||[],vet:b.vet||[],by:b.by||'',cAt:b.cAt||'',ub:b.ub||'',uAt:b.uAt||''})).filter(b=>CAGE[b.cage]&&b.pets.length);
     observations=(d.observations||[]).filter(o=>known.has(o.dog)).map(o=>Object.assign({kind:'note',issue:null,status:''},o));
@@ -612,14 +709,14 @@ const Store={
     if(d&&d.families){this._apply(d);if(DB===Local)Local._save()}
     else if(DB===Local){seed();Local._save()}
   },
-  async refresh(){if(DB===Local||this.pending)return;try{this._apply(await DB.load())}catch(e){console.error(e)}},
+  async refresh(){if(DB===Local||this.pending)return;const done=Busy.start('load');try{this._apply(await DB.load())}catch(e){console.error(e)}finally{done()}},
   /* writes go one after another, in order (a pet must not reach the database before its family) */
-  _run(fn){this.pending++;this.chain=this.chain.then(fn).catch(e=>{console.error(e);toast(T.db_err+': '+(e.message||e),true);setTimeout(()=>this.refresh().then(softRender),50)}).finally(()=>{this.pending--});return this.chain},
+  _run(fn){this.pending++;const done=DB===Local?()=>{}:Busy.start('save');this.chain=this.chain.then(fn).catch(e=>{console.error(e);toast(T.db_err+': '+(e.message||e),true);setTimeout(()=>this.refresh().then(softRender),50)}).finally(()=>{this.pending--;done()});return this.chain},
   _new(){return {by:this.user,cAt:new Date().toISOString(),ub:'',uAt:''}},
   _touch(x){x.ub=this.user;x.uAt=new Date().toISOString();return x},
   addFamily(name,phone){const f=Object.assign({id:uuid(),name,phone:phone||''},this._new());families.push(f);this._run(()=>DB.insertFamily(f));return f.id},
   updateFamily(id,patch){const f=this._touch(famById(id));Object.assign(f,patch);this._run(()=>DB.updateFamily(f))},
-  addPet(fam,species,d){const x={id:uuid(),fam,species,name:d.name,breed:d.breed||'',size:species==='cat'?'C':(d.size||breedSize(d.breed)),food:d.food||'',meds:d.meds||'',notes:d.notes||'',medStart:d.medStart||'',medEnd:d.medEnd||''};Object.assign(x,this._new());pets.push(x);this._run(()=>DB.insertPet(x));return x.id},
+  addPet(fam,species,d){const x={id:uuid(),fam,species,name:d.name,breed:d.breed||'',size:species==='cat'?'C':(d.size||breedSize(d.breed)),food:d.food||'',meds:d.meds||'',notes:d.notes||'',medStart:d.medStart||'',medEnd:d.medEnd||'',alerts:(d.alerts||[]).slice(),alertsNote:d.alertsNote||''};Object.assign(x,this._new());pets.push(x);this._run(()=>DB.insertPet(x));return x.id},
   updatePet(id,patch){const d=this._touch(petById(id));Object.assign(d,patch);this._run(()=>DB.updatePet(d))},
   addBooking(fam,ids,cage,s,e,svc){const b={id:uuid(),fam,pets:ids,cage,start:s,end:e,groom:(svc&&svc.groom)||[],vet:(svc&&svc.vet)||[]};Object.assign(b,this._new());bookings.push(b);this._run(()=>DB.insertBooking(b));return b},
   moveBooking(id,cage){const b=this._touch(bookings.find(x=>x.id===id));b.cage=cage;this._run(()=>DB.updateBooking(b))},
@@ -674,17 +771,25 @@ const bSizes=b=>b.sizes||bPets(b).map(d=>d.size);
 const bSp=b=>CAGE[b.cage].sp;
 const bks=k=>bookings.filter(b=>bSp(b)===k);
 const covers=(b,d)=>b.start<=d&&d<b.end;
-/* returns null if these animals fit in kennel c for [s,e), otherwise a reason key */
-function why(c,sizes,fam,s,e,pending=[],exclude=null){
+/* behaviour alerts: "nomix" = the animal has to be alone in its kennel, even with its own family */
+const ALERTS=['nomix','strangers','bites','escapes','fearful','cats','muzzle'];
+const isLone=p=>!!(p&&p.alerts&&p.alerts.includes('nomix'));
+const hasAlert=p=>!!(p&&((p.alerts&&p.alerts.length)||p.alertsNote));
+const bLone=b=>b.pets?bPets(b).some(isLone):!!b.lone;      /* real booking → its pets · planned one → its flag */
+/* returns null if these animals fit in kennel c for [s,e), otherwise a reason key.
+   lone = one of these animals must not share the kennel */
+function why(c,sizes,fam,s,e,pending=[],exclude=null,lone=false){
   if(c.off)return 'm_off';
   const n=sizes.length;
   if(!sizes.every(z=>c.sizes.includes(z)))return 'm_size';
+  if(n>1&&lone)return 'm_alone';
   if(n>c.max)return 'm_full';
   if(n>1&&!sizes.every(z=>c.pair.includes(z)))return 'm_pair';
   const all=bookings.filter(b=>b.id!==exclude).concat(pending);
   for(let d=s;d<e;d=add(d,1)){
     const here=all.filter(b=>b.cage===c.id&&covers(b,d));
     if(here.length){
+      if(lone||here.some(bLone))return 'm_alone';
       if(here.some(b=>b.fam!==fam))return 'm_family';
       const zs=here.flatMap(b=>bSizes(b)).concat(sizes);
       if(zs.length>c.max)return 'm_full';
@@ -696,10 +801,10 @@ function why(c,sizes,fam,s,e,pending=[],exclude=null){
   }
   return null;
 }
-const fits=(c,sizes,fam,s,e,pending=[])=>why(c,sizes,fam,s,e,pending)===null;
+const fits=(c,sizes,fam,s,e,pending=[],lone=false)=>why(c,sizes,fam,s,e,pending,null,lone)===null;
 function canMove(b,cageId){
   if(cageId===b.cage)return 'm_same';
-  return why(CAGE[cageId],bSizes(b),b.fam,b.start,b.end,[],b.id);
+  return why(CAGE[cageId],bSizes(b),b.fam,b.start,b.end,[],b.id,bLone(b));
 }
 /* lower score = suggested first */
 function score(c,sizes){
@@ -724,23 +829,25 @@ function partitions(n,maxBlock){
   })(0,[]);
   return res;
 }
-function suggestMany(sizes,fam,s,e,k){
+/* lones[i] = animal i must be alone in its kennel ("no mezclar") */
+function suggestMany(sizes,fam,s,e,k,lones=[]){
   const cages=cagesOf(k),maxBlock=Math.max(...cages.map(c=>c.max));
   const splitPen=k==='cat'?1:.1,shareBonus=k==='cat'?0:.2;
   const out=[],seen=new Set(),tried=new Set();
   const big=g=>Math.max(...g.map(i=>RANK[sizes[i]]));
+  const zl=i=>sizes[i]+(lones[i]?'!':'');
   for(const part of partitions(sizes.length,maxBlock)){
-    const sig=part.map(g=>g.map(i=>sizes[i]).sort().join('')).sort().join('|');
+    const sig=part.map(g=>g.map(zl).sort().join('')).sort().join('|');
     if(tried.has(sig))continue;tried.add(sig);
     const groups=part.slice().sort((a,b)=>b.length-a.length||big(b)-big(a));
     let nodes=0;
     const dfs=(gi,pend,used,acc)=>{
       if(gi===groups.length)return acc;
-      const g=groups[gi],zs=g.map(i=>sizes[i]);
-      const cands=cages.filter(c=>!used.has(c.id)&&fits(c,zs,fam,s,e,pend)).sort((a,b)=>score(a,zs)-score(b,zs));
+      const g=groups[gi],zs=g.map(i=>sizes[i]),lone=g.some(i=>lones[i]);
+      const cands=cages.filter(c=>!used.has(c.id)&&fits(c,zs,fam,s,e,pend,lone)).sort((a,b)=>score(a,zs)-score(b,zs));
       for(const c of cands){
         if(++nodes>600)return null;
-        const r=dfs(gi+1,pend.concat([{cage:c.id,fam,start:s,end:e,sizes:zs}]),new Set(used).add(c.id),
+        const r=dfs(gi+1,pend.concat([{cage:c.id,fam,start:s,end:e,sizes:zs,lone}]),new Set(used).add(c.id),
           acc.concat([{cage:c.id,idx:g,sc:score(c,zs)-(g.length>1?shareBonus:0)}]));
         if(r)return r;
       }
@@ -748,7 +855,7 @@ function suggestMany(sizes,fam,s,e,k){
     };
     const sol=dfs(0,[],new Set(),[]);
     if(!sol)continue;
-    const key=sol.map(p=>p.cage+':'+p.idx.map(i=>sizes[i]).sort().join('')).sort().join('|');
+    const key=sol.map(p=>p.cage+':'+p.idx.map(zl).sort().join('')).sort().join('|');
     if(seen.has(key))continue;seen.add(key);
     sol.sort((a,b)=>a.idx[0]-b.idx[0]);
     const parts=sol.map(p=>({cage:p.cage,idx:p.idx}));
@@ -757,20 +864,20 @@ function suggestMany(sizes,fam,s,e,k){
   }
   return out.sort((x,y)=>x.score-y.score).slice(0,6);
 }
-function suggest(sizes,fam,s,e,k){
-  if(sizes.length>2)return suggestMany(sizes,fam,s,e,k);
+function suggest(sizes,fam,s,e,k,lones=[]){
+  if(sizes.length>2)return suggestMany(sizes,fam,s,e,k,lones);
   const cages=cagesOf(k),out=[];
   const splitPen=k==='cat'?1:.1,shareBonus=k==='cat'?0:.2;
-  const single=(z,pend)=>cages.filter(c=>fits(c,[z],fam,s,e,pend)).sort((a,b)=>score(a,[z])-score(b,[z]));
+  const single=(z,pend,lone)=>cages.filter(c=>fits(c,[z],fam,s,e,pend,lone)).sort((a,b)=>score(a,[z])-score(b,[z]));
   const mk=(parts,sc,shared)=>({parts,tier:partTier(parts),score:sc,shared});
   if(sizes.length===1){
-    single(sizes[0],[]).forEach(c=>out.push(mk([{cage:c.id,idx:[0]}],score(c,sizes))));
+    single(sizes[0],[],!!lones[0]).forEach(c=>out.push(mk([{cage:c.id,idx:[0]}],score(c,sizes))));
   }else{
-    cages.filter(c=>fits(c,sizes,fam,s,e)).forEach(c=>out.push(mk([{cage:c.id,idx:[0,1]}],score(c,sizes)-shareBonus,true)));
-    const a=single(sizes[0],[])[0];
+    cages.filter(c=>fits(c,sizes,fam,s,e,[],!!(lones[0]||lones[1]))).forEach(c=>out.push(mk([{cage:c.id,idx:[0,1]}],score(c,sizes)-shareBonus,true)));
+    const a=single(sizes[0],[],!!lones[0])[0];
     if(a){
-      const pend=[{cage:a.id,fam,start:s,end:e,sizes:[sizes[0]]}];
-      const b=single(sizes[1],pend).filter(c=>c.id!==a.id)[0];
+      const pend=[{cage:a.id,fam,start:s,end:e,sizes:[sizes[0]],lone:!!lones[0]}];
+      const b=single(sizes[1],pend,!!lones[1]).filter(c=>c.id!==a.id)[0];
       if(b)out.push(mk([{cage:a.id,idx:[0]},{cage:b.id,idx:[1]}],Math.max(score(a,[sizes[0]]),score(b,[sizes[1]]))+splitPen));
     }
   }
@@ -824,7 +931,7 @@ const DAYS=21;
 const MAXD=6;            /* most animals in one booking (same family) */
 let authing=false;       /* true while the sign-in screen is showing */
 let cq='';               /* search text in Clients */
-const blankPet=()=>({name:'',breed:'',size:'M',food:'',meds:'',notes:'',medStart:'',medEnd:'',svc:{groom:false,vet:false}});
+const blankPet=()=>({name:'',breed:'',size:'M',food:'',meds:'',notes:'',medStart:'',medEnd:'',alerts:[],alertsNote:'',svc:{groom:false,vet:false}});
 const freshNB=()=>({s:add(TODAY,1),e:add(TODAY,4),client:null,q:'',picked:[],nNew:1,news:Array.from({length:MAXD},blankPet),svcSaved:{groom:{},vet:{}},fname:'',phone:'',step:1,opt:null,opts:[]});
 let nb=freshNB();        /* the stay being booked in "New stay" */
 const $=s=>document.querySelector(s);
@@ -838,7 +945,66 @@ const svcIcons=b=>SERVICES.filter(s=>b[s.k].length).map(s=>s.icon).join(' ');
 const names=b=>bPets(b).map(d=>d.name).join(' + ');
 const petLine=p=>[esc(breedLabel(p.breed)),p.species==='cat'?T.sp1.cat:T.sizes[p.size]].filter(Boolean).join(' · ');
 const stayState=b=>b.end<=TODAY?'st_done':b.start>TODAY?'st_next':'st_in';
-function toast(msg,bad){const t=document.createElement('div');t.className='toast'+(bad?' bad':'');t.setAttribute('role','status');t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),bad?4500:3000)}
+/* behaviour alerts: the red box shown first, and the toggle buttons of the forms (data-i = new pet in "New stay") */
+const alertText=p=>[(p.alerts||[]).map(k=>T.al[k]||esc(k)).join(', '),esc(p.alertsNote)].filter(Boolean).join(' — ');
+function alertBox(p,withName){
+  if(!hasAlert(p))return '';
+  return `<div class="alerts" role="note"><b>⚠ ${T.alerts}${withName?` · ${esc(p.name)}`:''}</b>${p.alerts.length?`<div class="altags">${p.alerts.map(k=>`<span class="chip">${T.al[k]||esc(k)}</span>`).join('')}</div>`:''}${p.alertsNote?`<p>${esc(p.alertsNote)}</p>`:''}</div>`;
+}
+const alertFields=(px,x,i)=>`<div class="field"><span class="flab">⚠ ${T.alerts}</span>
+  <div class="seg alseg" role="group" aria-label="${T.alerts}">${ALERTS.map(k=>`<button type="button" data-act="altag" data-k="${k}"${i===undefined?'':` data-i="${i}"`} aria-pressed="${(x.alerts||[]).includes(k)}">${T.al[k]}</button>`).join('')}</div>
+  <label class="hint" for="${px}-alnote">${T.al_note}</label><input id="${px}-alnote" value="${esc(x.alertsNote)}" placeholder="${T.al_ph}" maxlength="300" autocomplete="off"></div>`;
+const pressedAlerts=sel=>$$(sel).filter(b=>b.getAttribute('aria-pressed')==='true').map(b=>b.dataset.k);
+
+/* waiting for Supabase: a small trotting dog, or a cat when the app is showing cats */
+function pupSVG(){
+  const cat=sp==='cat';
+  const head=cat
+    ?`<polygon points="41,11 43,1 49,8" fill="currentColor"/><polygon points="51,8 57,1 57,12" fill="currentColor"/><circle cx="49" cy="15" r="8.5" fill="currentColor"/><circle cx="52" cy="13.5" r="1.4" fill="var(--surface)"/><path d="M55 18h7M55 20l6 2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>`
+    :`<ellipse cx="56" cy="19" rx="6" ry="4" fill="currentColor"/><circle cx="48" cy="15" r="9" fill="currentColor"/><circle cx="61.5" cy="17.5" r="1.8" fill="var(--ink)"/><circle cx="51" cy="12.5" r="1.4" fill="var(--surface)"/><ellipse cx="43.5" cy="13" rx="3.2" ry="6.5" fill="var(--ink)" opacity=".55" transform="rotate(18 43.5 13)"/>`;
+  const tail=cat?`<path class="tail" d="M15 22 Q5 20 7 6" stroke="currentColor" stroke-width="3.5" fill="none" stroke-linecap="round"/>`
+                :`<path class="tail" d="M15 22 Q7 16 8 9" stroke="currentColor" stroke-width="4" fill="none" stroke-linecap="round"/>`;
+  return `<svg class="pup${cat?' cat':''}" viewBox="0 0 66 48" aria-hidden="true"><g class="bob">${tail}
+   <rect class="lg a" x="17" y="29" width="5" height="12" rx="2.5" fill="currentColor"/><rect class="lg b" x="23" y="29" width="5" height="12" rx="2.5" fill="currentColor"/>
+   <rect class="lg b" x="34" y="29" width="5" height="12" rx="2.5" fill="currentColor"/><rect class="lg a" x="40" y="29" width="5" height="12" rx="2.5" fill="currentColor"/>
+   <rect x="14" y="17" width="33" height="16" rx="8" fill="currentColor"/>${head}</g></svg>`;
+}
+const loadingView=(kind,small)=>`<div class="loading${small?' sm':''}" role="status">${pupSVG()}<span>${T['busy_'+kind]}</span></div>`;
+/* the small floating one: shows only if the wait lasts more than a moment, and stays long enough to be seen */
+const Busy={n:0,kind:'load',timer:null,shownAt:0,
+  start(kind){
+    this.n++;if(kind==='save'||this.n===1)this.kind=kind;
+    const el=$('#busy');
+    if(!el.hidden)this.show();
+    else if(!this.timer)this.timer=setTimeout(()=>{this.timer=null;if(this.n)this.show()},300);
+    let done=false;
+    return ()=>{if(done)return;done=true;this.n=Math.max(0,this.n-1);if(!this.n)this.stop()};
+  },
+  show(){
+    const el=$('#busy');if(!el.classList.contains('on'))this.shownAt=Date.now();
+    el.innerHTML=`${pupSVG()}<span>${T['busy_'+this.kind]}</span>`;
+    if(el.hidden){el.hidden=false;el.getBoundingClientRect()}
+    el.classList.add('on');
+  },
+  stop(){
+    clearTimeout(this.timer);this.timer=null;
+    const el=$('#busy'),wait=Math.max(0,700-(Date.now()-this.shownAt));
+    if(el.hidden)return;
+    setTimeout(()=>{if(this.n)return;el.classList.remove('on');
+      setTimeout(()=>{if(!this.n&&!el.classList.contains('on')){el.hidden=true;el.innerHTML=''}},160)},wait);
+  },
+};
+/* bottom messages: a new normal one replaces the previous normal one; red errors always stay their full time */
+function toastOut(t){if(!t.isConnected||t.classList.contains('out'))return;clearTimeout(t._tm);t.classList.remove('in');t.classList.add('out');setTimeout(()=>t.remove(),160)}
+function toast(msg,bad){
+  const box=$('#toasts');
+  if(!bad)box.querySelectorAll('.toast:not(.bad)').forEach(toastOut);
+  const t=document.createElement('div');t.className='toast'+(bad?' bad':'');t.setAttribute('role',bad?'alert':'status');t.textContent=msg;
+  box.appendChild(t);t.getBoundingClientRect();t.classList.add('in');
+  t._tm=setTimeout(()=>toastOut(t),bad?4500:3000);
+}
+/* quick fade of the main area — only when the person chose a new screen, never on automatic redraws or after saving */
+function fadeMain(){main.classList.remove('fade');void main.offsetWidth;main.classList.add('fade')}
 const telDigits=p=>String(p||'').replace(/[^\d+]/g,'');
 const telHTML=p=>p?`<span class="tel">${esc(p)}</span><span class="telbtns"><a class="btn sm" href="tel:${telDigits(p)}">${T.call}</a><a class="btn sm" href="https://wa.me/${telDigits(p).replace('+','')}" target="_blank" rel="noopener">WhatsApp</a></span>`:`<span class="hint">${T.no_phone}</span>`;
 const spSwitch=()=>`<div class="spsw" role="group" aria-label="${T.sp_pick}">${['dog','cat'].map(k=>`<button type="button" data-act="sp" data-sp="${k}" aria-pressed="${sp===k}">${T.Sp[k]}</button>`).join('')}</div>`;
@@ -856,7 +1022,7 @@ function setSp(k){
   syncForms();sp=k;LS.set('ppt.sp',k);
   if(nb.client){nb.picked=pets.filter(p=>p.fam===nb.client&&p.species===sp).map(p=>p.id);nb.nNew=nb.picked.length?0:1}
   nb.step=1;nb.opt=null;
-  render();
+  render();fadeMain();
 }
 /* copy what is typed in the open form into memory, so a re-draw does not lose it */
 function syncForms(){
@@ -909,6 +1075,7 @@ function viewToday(){
   const obsNow=rows.map(x=>Object.assign({o:obsOf(x.d.id).find(o=>o.kind==='note')},x)).filter(x=>x.o&&new Date(x.o.at).getTime()>=since);
   const svcs=SERVICES.flatMap(s=>rows.filter(x=>x.b[s.k].includes(x.d.id)).map(x=>Object.assign({s},x)));
   const emg=stay.filter(isEmg);
+  const als=rows.filter(x=>hasAlert(x.d));
   const other=sp==='dog'?'cat':'dog',OB=bks(other);
   const oT=cnt(OB.filter(b=>covers(b,TODAY)))+(other==='dog'?LUCY.length:0),oA=cnt(OB.filter(b=>b.start===TODAY));
   let h=`<h1>${cap(fmtLong(TODAY))}</h1><p class="sub">${T.today_sub[sp]}</p>${spSwitch()}
@@ -918,11 +1085,12 @@ function viewToday(){
    <button class="stat" data-act="goto" data-to="sec-in"><div class="n">${cnt(ins)}</div><div class="t">${T.arriving}</div></button>
    <button class="stat" data-act="goto" data-to="sec-out"><div class="n">${cnt(outs)}</div><div class="t">${T.leaving}</div></button>
   </div>`;
-  if(meds.length||emg.length||obsNow.length||svcs.length||issues.length){
+  if(als.length||meds.length||emg.length||obsNow.length||svcs.length||issues.length){
     h+=`<h2>${T.attention}</h2><div class="list">`;
+    als.forEach(x=>h+=`<button class="alert item al" data-act="pet" data-p="${x.d.id}"><b>⚠</b><span><b class="ach">${esc(x.d.name)}</b> (${cname(x.b.cage)}): <b class="ach">${alertText(x.d)}</b></span></button>`);
     issues.forEach(x=>h+=issueCard(x.i,x.d,x.b,'',false));
     meds.forEach(x=>h+=`<button class="alert item" data-act="pet" data-p="${x.d.id}"><b>💊</b><span><b>${esc(x.d.name)}</b> (${cname(x.b.cage)}): ${esc(x.d.meds)}${x.m.chip?`<span class="medline">${medChip(x.m)}</span>`:''}</span></button>`);
-    obsNow.forEach(x=>h+=`<button class="alert item" data-act="pet" data-p="${x.d.id}"><b>🩺</b><span><b>${esc(x.d.name)}</b> (${cname(x.b.cage)}): ${obsLine(x.o)} <span class="hint">· ${fmtAt(x.o.at)}</span></span></button>`);
+    obsNow.forEach(x=>h+=`<button class="alert item" data-act="pet" data-p="${x.d.id}"><b>🩺</b><span><span class="clamp3"><b>${esc(x.d.name)}</b> (${cname(x.b.cage)}): ${obsLine(x.o)}</span><span class="hint">${fmtAt(x.o.at)}</span></span></button>`);
     svcs.forEach(x=>h+=`<button class="alert item" data-b="${x.b.id}"><b>${x.s.icon}</b><span>${T.svc_due(T[x.s.k],`<b>${esc(x.d.name)}</b>`,cname(x.b.cage),fmt(x.b.end))}</span></button>`);
     emg.forEach(b=>{const c=CAGE[b.cage],n=`<b>${esc(names(b))}</b>`;h+=`<button class="alert item" data-b="${b.id}"><b>!</b><span>${c.res?T.emg_rec1(n,b.cage):isOver(b)?T.emg_over(n,cname(c),c.normal):T.emg_large(n,cname(c))}</span></button>`});
     h+=`</div>`;
@@ -946,7 +1114,7 @@ function viewCal(){
   let h=`${spSwitch()}<div class="cal-head"><h1>${ml}</h1>
   <div class="navbtns"><button class="btn sm" data-act="prev">‹ ${T.prev}</button><button class="btn sm" data-act="today">${T.today}</button><button class="btn sm" data-act="next">${T.next} ›</button></div></div>
   <p class="sub">${T.cal_tap}</p>
-  <div class="legend"><span><i class="sw"></i>${T.lg_stay}</span>${sp==='dog'
+  <div class="legend"><span><i class="sw"></i>${T.lg_stay}</span><span><span class="ax">⚠</span> ${T.lg_alert}</span>${sp==='dog'
     ?`<span><i class="sw e"></i>${T.lg_emg}</span><span>${badges(ALL)} ${T.lg_size}</span><span>✂ ${T.lg_groom}</span><span><span class="vx">✚</span> ${T.lg_vet}</span>`
     :`<span><i class="sw e"></i>${T.lg_over}</span><span>${badges(['C','C'])} ${T.lg_cats}</span><span><span class="vx">✚</span> ${T.lg_vet}</span>`}</div>
   <div class="cal-scroll" id="calScroll"><div class="cal">`;
@@ -968,6 +1136,7 @@ function viewCal(){
   });
   return h+`</div></div>`;
 }
+let justMoved=null;      /* the stay that was just moved: it fades in at its new kennel so the eye finds it */
 function cageBars(c){
   const rEnd=add(calStart,DAYS);
   const bs=bookings.filter(b=>b.cage===c.id&&b.start<rEnd&&b.end>calStart).sort((a,b)=>a.start<b.start?-1:1);
@@ -977,15 +1146,18 @@ function cageBars(c){
     const x0=diff(calStart,b.start)+.5,x1=diff(calStart,b.end)+.5;
     const L=Math.max(x0,0),R=Math.min(x1,DAYS);
     if(R<=L)return'';
-    const cls=['bar'];if(x0<0)cls.push('cl');if(x1>DAYS)cls.push('cr');if(isEmg(b))cls.push('emg');if(half)cls.push('half','l'+Math.min(b._l,1));
-    const narrow=(R-L)<1.6;
-    return `<button class="${cls.join(' ')}" data-b="${b.id}" style="left:calc(var(--cw) * ${L});width:calc(var(--cw) * ${R-L})" aria-label="${esc(names(b))}, ${fmt(b.start)} – ${fmt(b.end)}">${badges(bSizes(b))}${narrow?'':`<span class="nm">${svcIcons(b)?svcIcons(b)+' ':''}${esc(names(b))}</span>`}</button>`;
+    const cls=['bar'];if(b.id===justMoved)cls.push('arrive');if(x0<0)cls.push('cl');if(x1>DAYS)cls.push('cr');if(isEmg(b))cls.push('emg');if(half)cls.push('half','l'+Math.min(b._l,1));
+    const narrow=(R-L)<1.6,al=bPets(b).some(hasAlert),np=b.pets.length;if(narrow)cls.push('nw');
+    /* a short bar has room for two circles at most: then ⚠ + how many animals, instead of one badge per size */
+    const marks=narrow&&(al||np>1)?`<span class="sz cnt" title="${nP(np,bSp(b))}">${np}</span>`:badges(bSizes(b));
+    return `<button class="${cls.join(' ')}" data-b="${b.id}" style="left:calc(var(--cw) * ${L});width:calc(var(--cw) * ${R-L})" aria-label="${al?`⚠ ${T.alerts}: `:''}${esc(names(b))}, ${fmt(b.start)} – ${fmt(b.end)}">${al?'<span class="ax">⚠</span>':''}${marks}${narrow?'':`<span class="nm">${svcIcons(b)?svcIcons(b)+' ':''}${esc(names(b))}</span>`}</button>`;
   }).join('');
 }
 
 /* ---------- New stay: step 1 (dates · who · space) ---------- */
 const nbPicked=()=>nb.picked.map(petById).filter(Boolean);
 const nbSizes=()=>nbPicked().map(p=>p.size).concat(Array.from({length:nb.nNew},(_,i)=>sp==='cat'?'C':nb.news[i].size));
+const nbLones=()=>nbPicked().map(isLone).concat(Array.from({length:nb.nNew},(_,i)=>isLone(nb.news[i])));
 const nbLabels=()=>nbPicked().map(p=>esc(p.name)).concat(Array.from({length:nb.nNew},(_,i)=>esc(nb.news[i].name)||T.new_n(sp,i+1)));
 function sizeSeg(i,cur){return `<div class="seg" role="group" aria-label="${T.size}">${ALL.map(z=>`<button type="button" data-act="nbsize" data-i="${i}" data-z="${z}" aria-pressed="${cur===z}"><span class="sz ${z}">${T.sl[z]}</span>${T.sizes[z]}</button>`).join('')}</div>`}
 function countSeg(from,to,cur){let h='';for(let k=from;k<=to;k++)h+=`<button type="button" data-act="nbn" data-n="${k}" aria-pressed="${cur===k}" class="num">${k}</button>`;return `<div class="seg">${h}</div>`}
@@ -1005,7 +1177,7 @@ function viewNew(){
      <div class="field"><span class="flab">${T.how_many[sp]}</span>${countSeg(1,MAXD,nb.nNew)}</div>`;
   }
   let rows='';
-  if(sp==='dog')for(let i=0;i<nb.nNew;i++)rows+=`<div class="newpet"><span class="flab">${T.new_n(sp,i+1)}</span><input id="nb-b${i}" list="breeds" value="${esc(breedLabel(nb.news[i].breed))}" placeholder="${T.breed_opt}" autocomplete="off" autocapitalize="words">${sizeSeg(i,nb.news[i].size)}</div>`;
+  if(sp==='dog')for(let i=0;i<nb.nNew;i++)rows+=`<div class="newpet"><span class="flab">${T.new_n(sp,i+1)}</span><input id="nb-b${i}" maxlength="80" list="breeds" value="${esc(breedLabel(nb.news[i].breed))}" placeholder="${T.breed_opt}" autocomplete="off" autocapitalize="words">${sizeSeg(i,nb.news[i].size)}</div>`;
   return `<h1>${T.new_title}</h1><p class="sub">${T.new_sub}</p>${spSwitch()}
   <div class="card"><p class="step"><i>1</i>${T.s_dates}</p>
    <div class="grid2"><div class="field"><label for="nb-s">${T.checkin}</label><input type="date" id="nb-s" value="${nb.s}"></div><div class="field"><label for="nb-e">${T.checkout}</label><input type="date" id="nb-e" value="${nb.e}"></div></div>
@@ -1049,7 +1221,7 @@ function nbResults(){
   if(!sizes.length){box.innerHTML=`<p class="hint" style="margin:0">${T.pick_some[sp]}</p>`;return}
   if(sizes.length>MAXD){box.innerHTML=`<div class="err">${T.too_many(MAXD)}</div>`;return}
   const what=sp==='cat'?nP(sizes.length,'cat'):`${nP(sizes.length,'dog')} (${ALL.map(z=>[sizes.filter(x=>x===z).length,z]).filter(x=>x[0]).map(([n,z])=>`${n} × ${T.sizes[z].toLowerCase()}`).join(', ')})`;
-  const o=suggest(sizes,nb.client||'__new',nb.s,nb.e,sp);nb.opts=o;
+  const o=suggest(sizes,nb.client||'__new',nb.s,nb.e,sp,nbLones());nb.opts=o;
   if(!o.length){box.innerHTML=`<div class="no"><b>${T.no_space}</b> ${T.no_space_av(what,fmt(nb.s),fmt(nb.e))}</div>`;return}
   const labels=nbLabels();
   box.innerHTML=`<div class="okbox">${T.yes_space(what,k,fmt(nb.s),fmt(nb.e))}</div><div class="opts">${o.map((x,i)=>optHTML(x,i,labels)).join('')}</div>`;
@@ -1074,18 +1246,19 @@ function viewNewDetails(){
   <div class="card"><dl class="kv" style="margin:0"><dt>${T.sum_dates}</dt><dd>${fmt(nb.s)} → ${fmt(nb.e)} · ${T.n_nights(k)}</dd>
    <dt>${T.sum_kennel}</dt><dd>${o.parts.map(p=>`<b>${cname(p.cage)}</b>: ${p.idx.map(i=>labels[i]).join(' + ')}`).join('<br>')}</dd></dl></div>
   <div class="card"><p class="step">${T.client}</p>${f?`<div><b>${esc(f.name)}</b>${f.phone?` · <span class="hint">${esc(f.phone)}</span>`:''}</div>`
-    :`<div class="field"><label for="nd-fname">${T.fam_name}</label><input id="nd-fname" value="${esc(nb.fname)}" autocomplete="off" autocapitalize="words"></div>
-      <div class="field"><label for="nd-phone">${T.phone}</label><input id="nd-phone" type="tel" value="${esc(nb.phone)}" placeholder="${T.phone_ph}" autocomplete="off"></div>`}</div>`;
-  saved.forEach(p=>{h+=`<div class="card"><p class="step">${badges([p.size])} ${esc(p.name)} <span class="hint" style="font-weight:400">${petLine(p)}</span></p>${svcFields('s:'+p.id,k=>nb.svcSaved[k][p.id])}</div>`});
+    :`<div class="field"><label for="nd-fname">${T.fam_name}</label><input id="nd-fname" maxlength="80" value="${esc(nb.fname)}" autocomplete="off" autocapitalize="words"></div>
+      <div class="field"><label for="nd-phone">${T.phone}</label><input id="nd-phone" maxlength="40" type="tel" value="${esc(nb.phone)}" placeholder="${T.phone_ph}" autocomplete="off"></div>`}</div>`;
+  saved.forEach(p=>{h+=`<div class="card"><p class="step">${badges([p.size])} ${esc(p.name)} <span class="hint" style="font-weight:400">${petLine(p)}</span></p>${alertBox(p)}${svcFields('s:'+p.id,k=>nb.svcSaved[k][p.id])}</div>`});
   for(let i=0;i<nb.nNew;i++){const d=nb.news[i];
     h+=`<div class="card"><p class="step">${T.new_n(sp,i+1)}</p>
-     <div class="field"><label for="nd-p${i}-name">${T.name}</label><input id="nd-p${i}-name" value="${esc(d.name)}" autocomplete="off" autocapitalize="words"></div>
-     <div class="field"><label for="nd-p${i}-breed">${T.breed}</label><input id="nd-p${i}-breed" ${sp==='dog'?'list="breeds"':''} value="${esc(breedLabel(d.breed))}" placeholder="${T.breed_ph}" autocomplete="off" autocapitalize="words"></div>
+     <div class="field"><label for="nd-p${i}-name">${T.name}</label><input id="nd-p${i}-name" maxlength="80" value="${esc(d.name)}" autocomplete="off" autocapitalize="words"></div>
+     ${alertFields(`nd-p${i}`,d,i)}
+     <div class="field"><label for="nd-p${i}-breed">${T.breed}</label><input id="nd-p${i}-breed" maxlength="80" ${sp==='dog'?'list="breeds"':''} value="${esc(breedLabel(d.breed))}" placeholder="${T.breed_ph}" autocomplete="off" autocapitalize="words"></div>
      ${sp==='dog'?`<div class="field"><label for="nd-p${i}-size">${T.size}</label><select id="nd-p${i}-size">${ALL.map(z=>`<option value="${z}"${z===d.size?' selected':''}>${T.sizes[z]}</option>`).join('')}</select></div>`:''}
-     <div class="field"><label for="nd-p${i}-food">${T.food}</label><input id="nd-p${i}-food" value="${esc(d.food)}"></div>
-     <div class="field"><label for="nd-p${i}-meds">${T.meds}</label><input id="nd-p${i}-meds" value="${esc(d.meds)}" placeholder="${T.none}"></div>
+     <div class="field"><label for="nd-p${i}-food">${T.food}</label><input id="nd-p${i}-food" maxlength="200" value="${esc(d.food)}"></div>
+     <div class="field"><label for="nd-p${i}-meds">${T.meds}</label><input id="nd-p${i}-meds" maxlength="200" value="${esc(d.meds)}" placeholder="${T.none}"></div>
      ${medDates(`nd-p${i}`,d)}
-     <div class="field"><label for="nd-p${i}-notes">${T.notes}</label><textarea id="nd-p${i}-notes" rows="2">${esc(d.notes)}</textarea></div>
+     <div class="field"><label for="nd-p${i}-notes">${T.notes}</label><textarea id="nd-p${i}-notes" maxlength="1000" rows="2">${esc(d.notes)}</textarea></div>
      ${svcFields('n:'+i,k=>d.svc[k])}</div>`;
   }
   return h+`<div id="nd-err"></div><div class="actions"><button class="btn primary big" type="button" data-act="nbsave">${T.save_stay}</button><button class="btn" type="button" data-act="nbback">${T.back}</button></div>`;
@@ -1098,7 +1271,8 @@ function syncDetails(){
     set(d,'name',v(`nd-p${i}-name`));const br=v(`nd-p${i}-breed`);if(br!==null)d.breed=breedKey(br);
     const sz=v(`nd-p${i}-size`);if(sz)d.size=sz;
     set(d,'food',v(`nd-p${i}-food`));set(d,'meds',v(`nd-p${i}-meds`));set(d,'notes',v(`nd-p${i}-notes`));
-    set(d,'medStart',v(`nd-p${i}-ms`));set(d,'medEnd',v(`nd-p${i}-me`));}
+    set(d,'medStart',v(`nd-p${i}-ms`));set(d,'medEnd',v(`nd-p${i}-me`));
+    set(d,'alertsNote',v(`nd-p${i}-alnote`));if(document.getElementById(`nd-p${i}-alnote`))d.alerts=pressedAlerts(`[data-act="altag"][data-i="${i}"]`);}
 }
 let saving=false;
 async function nbSave(){
@@ -1112,11 +1286,12 @@ async function nbSave(){
   saving=true;
   try{
     await Store.refresh();                                          /* someone else may have booked meanwhile */
-    const famKey=nb.client||'__new',sizes=nbSizes(),pend=[];
+    const famKey=nb.client||'__new',sizes=nbSizes(),lones=nbLones(),pend=[];
     for(const p of nb.opt.parts){
-      const zs=p.idx.map(i=>sizes[i]);
-      if(why(CAGE[p.cage],zs,famKey,nb.s,nb.e,pend)){box.innerHTML=`<div class="err">${T.nb_changed}</div>`;box.scrollIntoView({block:'center'});return}
-      pend.push({cage:p.cage,fam:famKey,start:nb.s,end:nb.e,sizes:zs});
+      const zs=p.idx.map(i=>sizes[i]),lone=p.idx.some(i=>lones[i]);
+      const r=why(CAGE[p.cage],zs,famKey,nb.s,nb.e,pend,null,lone);
+      if(r){box.innerHTML=`<div class="err">${r==='m_alone'?`<b>${T.m_alone}.</b> ${T.al_back}`:T.nb_changed}</div>`;box.scrollIntoView({block:'center'});return}
+      pend.push({cage:p.cage,fam:famKey,start:nb.s,end:nb.e,sizes:zs,lone});
     }
     const fam=nb.client||Store.addFamily(nb.fname,nb.phone);
     const ids=nb.picked.slice(),mySvc=svcFor(sp),want={};
@@ -1148,8 +1323,28 @@ function clientList(){
 /* ============================================================
    8. SHEETS: stay · pet · client
    ============================================================ */
-const sheet=(label,inner)=>{$('#sheetRoot').innerHTML=`<div class="scrim" data-act="close"></div><div class="sheet" role="dialog" aria-modal="true" aria-label="${label}"><div class="grab"></div>${inner}</div>`};
-function closeSheet(){$('#sheetRoot').innerHTML=''}
+/* A sheet rises once. If one is already open (or still closing), only its content changes:
+   no second entrance, and the same record keeps its scroll position (key = which record + mode). */
+let sheetKey='',sheetTimer=null;
+function sheet(label,inner,key){
+  const root=$('#sheetRoot');key=key||label;
+  clearTimeout(sheetTimer);sheetTimer=null;
+  let sh=root.querySelector('.sheet');
+  if(sh){
+    const keep=key===sheetKey&&!root.classList.contains('closing')?sh.scrollTop:0;
+    sh.setAttribute('aria-label',label);sh.innerHTML=`<div class="grab"></div>${inner}`;sh.scrollTop=keep;
+    root.classList.remove('closing');root.classList.add('show');     /* caught mid-close: it simply goes back up */
+  }else{
+    root.innerHTML=`<div class="scrim" data-act="close"></div><div class="sheet" role="dialog" aria-modal="true" aria-label="${label}"><div class="grab"></div>${inner}</div>`;
+    root.getBoundingClientRect();root.classList.add('show');
+  }
+  sheetKey=key;
+}
+function closeSheet(){
+  const root=$('#sheetRoot');if(!root.innerHTML||root.classList.contains('closing'))return;
+  sheetKey='';root.classList.remove('show');root.classList.add('closing');
+  sheetTimer=setTimeout(()=>{root.innerHTML='';root.classList.remove('closing');sheetTimer=null},200);
+}
 const head=(title,sub,back)=>`<div class="shead"><div>${back?`<button class="btn sm" data-act="back" data-to="${back}" style="margin-bottom:6px">${T.back}</button><br>`:''}<h2>${title}</h2>${sub?`<span class="hint">${sub}</span>`:''}</div><button class="btn sm" data-act="close">${T.close}</button></div>`;
 function goBack(to){const i=to.indexOf(':'),k=to.slice(0,i),id=to.slice(i+1);if(k==='b')openStay(id);else if(k==='c')openClient(id);else closeSheet()}
 
@@ -1163,7 +1358,7 @@ const CHK=()=>({same:T.chk_same,better:T.chk_better,worse:T.chk_worse});
 function issueCard(i,d,b,back,inSheet){
   const red=issueRed(i),td=issueToday(i),lbl=CHK(),x=`data-i="${i.id}" data-back="${back||''}"${inSheet?' data-sheet="1"':''}`;
   return `<div class="issue${red?' red':''}">
-   <button class="ihead" type="button" data-act="pet" data-p="${d.id}" data-back="${back||''}"><b class="ic">🩺</b><span><b>${esc(d.name)}</b>${b?` (${cname(b.cage)})`:''}: ${obsLine(i)||T.obs_tags.other}</span></button>
+   <button class="ihead" type="button" data-act="pet" data-p="${d.id}" data-back="${back||''}"><b class="ic">🩺</b><span${inSheet?'':' class="clamp3"'}><b>${esc(d.name)}</b>${b?` (${cname(b.cage)})`:''}: ${obsLine(i)||T.obs_tags.other}</span></button>
    <div class="imeta"><span class="chip ${red?'bad':'warn'}">${T.day_n(issueDay(i))}</span><span class="hint">${T.since(fmtAt(i.at))}${i.by?` · ${who(i.by)}`:''} · ${td?T.chk_today(lbl[td.status])+(td.by?` (${who(td.by)})`:''):T.chk_none}</span></div>
    <div class="irow"><span class="flab">${T.chk_q}</span><div class="seg">${['same','better','worse'].map(k=>`<button type="button" data-act="icheck" data-s="${k}" ${x} aria-pressed="${!!td&&td.status===k}">${lbl[k]}</button>`).join('')}</div></div>
    <button class="btn sm fine" type="button" data-act="idone" ${x}>✓ ${T.all_fine}</button></div>`;
@@ -1205,11 +1400,11 @@ function openStay(id,edit){
       <div class="actions" style="margin-top:0"><button class="btn primary" type="button" data-act="savestay" data-b2="${b.id}">${T.save}</button><button class="btn" type="button" data-act="back" data-to="${back}">${T.cancel}</button></div>
      </div>
      <h2 class="sech">${T.edit_pets}</h2>
-     <div class="list">${ps.map(d=>`<button class="item" data-act="pet" data-p="${d.id}" data-back="${back}" data-mode="edit"><span class="badges">${badges([d.size])}</span><span class="tx"><b>${esc(d.name)}</b><span>${petLine(d)}</span></span><span class="rt go">${T.edit_w}</span></button>`).join('')}</div>`);
+     <div class="list">${ps.map(d=>`<button class="item" data-act="pet" data-p="${d.id}" data-back="${back}" data-mode="edit"><span class="badges">${badges([d.size])}</span><span class="tx"><b>${esc(d.name)}</b><span>${petLine(d)}</span></span><span class="rt go">${T.edit_w}</span></button>`).join('')}</div>`,'b:'+b.id+':e');
     return;
   }
   const others=cagesOf(c.sp).filter(x=>x.id!==b.cage&&canMove(b,x.id)===null);
-  sheet(esc(names(b)),head(esc(names(b)),esc(f.name))+`
+  sheet(esc(names(b)),head(esc(names(b)),esc(f.name))+ps.map(d=>alertBox(d,ps.length>1)).join('')+`
    <dl class="kv"><dt>${T.status}</dt><dd><span class="chip${st==='st_in'?' ok':' plain'}">${T[st]}</span></dd>
    <dt>${T.dates}</dt><dd>${fmt(b.start)} → ${fmt(b.end)} · ${n} ${n===1?T.night:T.nights}</dd>
    <dt>${T.cage}</dt><dd><span class="chip${isEmg(b)?' warn':''}">${cname(c)}</span>${c.res?` <span class="hint">${T.rec1_sleep(c.res)}</span>`:''}${isOver(b)?` <span class="hint">${T.n_over(cname(c),nP(c.normal,'cat'))}</span>`:''}</dd>
@@ -1221,7 +1416,7 @@ function openStay(id,edit){
      <dt>${T.obs}</dt><dd>${op.length?op.map(i=>`<b class="${issueRed(i)?'badt':'warnt'}">${obsLine(i)||T.obs_tags.other} · ${T.day_n(issueDay(i))}</b>`).join('<br>'):o.length?`${obsLine(o[0])} <span class="hint">· ${fmtAt(o[0].at)}${o.length>1?` · +${o.length-1}`:''}</span>`:'—'}</dd></dl>
      ${svcFor(c.sp).map(s=>{const on=b[s.k].includes(d.id);return `<div class="grow"><span class="flab">${s.icon} ${T[s.k]}</span><div class="seg">${[0,1].map(v=>`<button type="button" data-act="svc" data-s="${s.k}" data-b2="${b.id}" data-p="${d.id}" data-v="${v}" aria-pressed="${on===!!v}">${v?T.yes:T.no}</button>`).join('')}</div></div>`}).join('')}</div>`}).join('')}
    <div class="moverow"><label class="flab" for="mv">${T.move_to}</label>${others.length?`<select id="mv">${others.map(x=>`<option value="${x.id}">${cname(x)}${x.res?` · ${x.res}`:''}${x.tier===4?` · ${T.t4}`:''}${ps.length>x.normal?` · ${T.t5}`:''}</option>`).join('')}</select><button class="btn blue sm" type="button" data-act="domove" data-b2="${b.id}">${T.move}</button>`:`<span class="hint">${T.no_other}</span>`}</div>
-   <div class="actions" id="cx"><button class="btn blue" type="button" data-act="editstay" data-b2="${b.id}">${T.edit_stay}</button><button class="btn danger" type="button" data-act="askcancel" data-b2="${b.id}">${T.cancel_stay}</button></div>`);
+   <div class="actions" id="cx"><button class="btn blue" type="button" data-act="editstay" data-b2="${b.id}">${T.edit_stay}</button><button class="btn danger" type="button" data-act="askcancel" data-b2="${b.id}">${T.cancel_stay}</button></div>`,'b:'+b.id);
 }
 function saveStay(id){
   const b=bookings.find(x=>x.id===id);if(!b)return;
@@ -1229,7 +1424,7 @@ function saveStay(id){
   if(!s||!e||e<=s){box.innerHTML=`<div class="err">${T.err_dates}</div>`;return}
   const cb=$('#es-sibs');
   const targets=[b].concat(cb&&cb.checked?sibsOf(b):[]);
-  const bad=targets.map(t=>({t,r:why(CAGE[t.cage],bSizes(t),t.fam,s,e,[],t.id)})).filter(x=>x.r);
+  const bad=targets.map(t=>({t,r:why(CAGE[t.cage],bSizes(t),t.fam,s,e,[],t.id,bLone(t))})).filter(x=>x.r);
   if(bad.length){box.innerHTML=`<div class="err">${bad.map(x=>`<b>${esc(names(x.t))}</b> (${cname(x.t.cage)}): ${T[x.r]}.`).join('<br>')}<br>${T.fix_hint}</div>`;return}
   targets.forEach(t=>Store.setDates(t.id,s,e));
   toast(T.stay_saved);openStay(id);render();
@@ -1240,20 +1435,21 @@ function doMove(id,cage){
   if(r){toast(T[r],true);return false}
   Store.moveBooking(id,cage);
   toast(T.moved(cname(cage)));
-  render();return true;
+  justMoved=id;render();justMoved=null;return true;
 }
 
 /* ---------- pet ---------- */
 function petForm(d,fam,species,back){
   const x=d||blankPet(),dog=species==='dog';
   return `<div class="card" id="pf" style="margin-top:12px" data-enter='[data-act="savepet"]'>
-   <div class="field"><label for="pf-name">${T.name}</label><input id="pf-name" value="${esc(x.name)}" autocomplete="off" autocapitalize="words"></div>
-   <div class="field"><label for="pf-breed">${T.breed}</label><input id="pf-breed" ${dog?'list="breeds"':''} value="${esc(breedLabel(x.breed))}" placeholder="${T.breed_ph}" autocomplete="off" autocapitalize="words"></div>
+   <div class="field"><label for="pf-name">${T.name}</label><input id="pf-name" maxlength="80" value="${esc(x.name)}" autocomplete="off" autocapitalize="words"></div>
+   ${alertFields('pf',x)}
+   <div class="field"><label for="pf-breed">${T.breed}</label><input id="pf-breed" maxlength="80" ${dog?'list="breeds"':''} value="${esc(breedLabel(x.breed))}" placeholder="${T.breed_ph}" autocomplete="off" autocapitalize="words"></div>
    ${dog?`<div class="field"><label for="pf-size">${T.size}</label><select id="pf-size">${ALL.map(z=>`<option value="${z}"${z===x.size?' selected':''}>${T.sizes[z]}</option>`).join('')}</select><span class="hint">${T.size_hint}</span></div>`:''}
-   <div class="field"><label for="pf-food">${T.food}</label><input id="pf-food" value="${esc(x.food)}"></div>
-   <div class="field"><label for="pf-meds">${T.meds}</label><input id="pf-meds" value="${esc(x.meds)}" placeholder="${T.none}"></div>
+   <div class="field"><label for="pf-food">${T.food}</label><input id="pf-food" maxlength="200" value="${esc(x.food)}"></div>
+   <div class="field"><label for="pf-meds">${T.meds}</label><input id="pf-meds" maxlength="200" value="${esc(x.meds)}" placeholder="${T.none}"></div>
    ${medDates('pf',x)}
-   <div class="field"><label for="pf-notes">${T.notes}</label><textarea id="pf-notes" rows="3">${esc(x.notes)}</textarea></div>
+   <div class="field"><label for="pf-notes">${T.notes}</label><textarea id="pf-notes" maxlength="1000" rows="3">${esc(x.notes)}</textarea></div>
    <div id="pf-err"></div>
    <div class="actions" style="margin-top:4px"><button class="btn primary" type="button" data-act="savepet" data-p="${d?d.id:''}" data-f="${fam}" data-sp="${species}" data-back="${back||''}">${T.save}</button>
     ${d?`<button class="btn" type="button" data-act="pet" data-p="${d.id}" data-back="${back||''}">${T.cancel}</button>`:`<button class="btn" type="button" data-act="client" data-f="${fam}">${T.cancel}</button>`}</div></div>`;
@@ -1262,9 +1458,9 @@ function openPet(id,back,edit){
   const d=petById(id);if(!d){closeSheet();return}
   const f=famById(d.fam)||{id:'',name:'',phone:''};
   const title=`${badges([d.size])} ${esc(d.name)}`;
-  if(edit){sheet(esc(d.name),head(title,esc(f.name),back)+petForm(d,d.fam,d.species,back));$('#pf-name').focus();return}
+  if(edit){sheet(esc(d.name),head(title,esc(f.name),back)+petForm(d,d.fam,d.species,back),'p:'+d.id+':e');$('#pf-name').focus();return}
   const stays=bookings.filter(b=>b.pets.includes(id)).sort((a,b)=>a.start<b.start?1:-1);
-  sheet(esc(d.name),head(title,T.sp1[d.species],back)+`
+  sheet(esc(d.name),head(title,T.sp1[d.species],back)+alertBox(d)+`
    <dl class="kv"><dt>${T.breed}</dt><dd>${esc(breedLabel(d.breed))||'—'}</dd>
     ${d.species==='dog'?`<dt>${T.size}</dt><dd>${T.sizes[d.size]}</dd>`:''}
     <dt>${T.owner}</dt><dd><button class="linkbtn" type="button" data-act="client" data-f="${f.id}">${esc(f.name)}</button></dd>
@@ -1274,21 +1470,23 @@ function openPet(id,back,edit){
     <dt>${T.notes}</dt><dd>${esc(d.notes)||'—'}</dd></dl>
    <div class="actions" style="margin-top:0"><button class="btn blue sm" type="button" data-act="pet" data-p="${d.id}" data-back="${back||''}" data-mode="edit">${T.edit}</button></div>
    ${obsSection(d,back)}
-   <h2 class="sech">${T.stays}</h2><div class="list">${stays.map(stayItem).join('')||`<div class="empty">${T.no_stays}</div>`}</div>`);
+   <h2 class="sech">${T.stays}</h2><div class="list">${stays.map(stayItem).join('')||`<div class="empty">${T.no_stays}</div>`}</div>`,'p:'+d.id);
 }
 function savePet(t){
   const v=id=>($('#'+id)||{}).value||'';
   const id=t.dataset.p,fam=t.dataset.f,species=t.dataset.sp,back=t.dataset.back;
   const name=v('pf-name').trim();
   if(!name){$('#pf-err').innerHTML=`<div class="err">${T.e_pet(T.spn[species][0])}</div>`;$('#pf-name').focus();return}
-  const data={name,breed:breedKey(v('pf-breed')),food:v('pf-food').trim(),meds:v('pf-meds').trim(),notes:v('pf-notes').trim(),medStart:v('pf-ms'),medEnd:v('pf-me')};
+  const data={name,breed:breedKey(v('pf-breed')),food:v('pf-food').trim(),meds:v('pf-meds').trim(),notes:v('pf-notes').trim(),medStart:v('pf-ms'),medEnd:v('pf-me'),
+    alerts:pressedAlerts('#pf [data-act="altag"]'),alertsNote:v('pf-alnote').trim()};
   const me=fixMed(data,TODAY);
   if(me){$('#pf-err').innerHTML=`<div class="err">${me}</div>`;$('#pf-me').focus();return}
   if(species==='dog')data.size=v('pf-size');
   if(!id){Store.addPet(fam,species,data);toast(T.pet_saved);openClient(fam);render();return}
   Store.updatePet(id,data);
-  const tight=bookings.find(b=>b.pets.includes(id)&&b.end>TODAY&&why(CAGE[b.cage],bSizes(b),b.fam,b.start,b.end,[],b.id));
-  if(tight)toast(T.size_warn(name,cname(tight.cage)),true);else toast(T.pet_saved);
+  const tr=b=>why(CAGE[b.cage],bSizes(b),b.fam,b.start,b.end,[],b.id,bLone(b));
+  const tight=bookings.find(b=>b.pets.includes(id)&&b.end>TODAY&&tr(b));
+  if(tight)toast(tr(tight)==='m_alone'?`${T.m_alone} (${cname(tight.cage)})`:T.size_warn(name,cname(tight.cage)),true);else toast(T.pet_saved);
   openPet(id,back);render();
 }
 
@@ -1298,11 +1496,11 @@ function openClient(id,edit){
   if(edit||!f){
     sheet(f?T.edit_client:T.new_client,head(f?T.edit_client:T.new_client,f?esc(f.name):'')+`
      <div class="card" style="margin-top:12px" data-enter='[data-act="saveclient"]'>
-      <div class="field"><label for="cf-name">${T.fam_name}</label><input id="cf-name" value="${esc(f?f.name:'')}" autocomplete="off" autocapitalize="words"></div>
-      <div class="field"><label for="cf-phone">${T.phone}</label><input id="cf-phone" type="tel" value="${esc(f?f.phone:'')}" placeholder="${T.phone_ph}" autocomplete="off"></div>
+      <div class="field"><label for="cf-name">${T.fam_name}</label><input id="cf-name" maxlength="80" value="${esc(f?f.name:'')}" autocomplete="off" autocapitalize="words"></div>
+      <div class="field"><label for="cf-phone">${T.phone}</label><input id="cf-phone" maxlength="40" type="tel" value="${esc(f?f.phone:'')}" placeholder="${T.phone_ph}" autocomplete="off"></div>
       <div id="cf-err"></div>
       <div class="actions" style="margin-top:0"><button class="btn primary" type="button" data-act="saveclient" data-f="${f?f.id:''}">${T.save}</button>
-       <button class="btn" type="button" data-act="${f?'client':'close'}" data-f="${f?f.id:''}">${T.cancel}</button></div></div>`);
+       <button class="btn" type="button" data-act="${f?'client':'close'}" data-f="${f?f.id:''}">${T.cancel}</button></div></div>`,'c:'+(f?f.id:'new')+':e');
     $('#cf-name').focus();return;
   }
   const mine=pets.filter(p=>p.fam===f.id),back='c:'+f.id;
@@ -1315,7 +1513,7 @@ function openClient(id,edit){
    <div class="list">${mine.map(p=>`<button class="item" data-act="pet" data-p="${p.id}" data-back="${back}"><span class="badges">${badges([p.size])}</span><span class="tx"><b>${esc(p.name)}</b><span>${petLine(p)}</span></span>${here(p)?`<span class="rt"><span class="chip ok">${T.st_in}</span></span>`:''}</button>`).join('')||`<div class="empty">${T.no_pets}</div>`}</div>
    <div class="actions" style="margin-top:8px"><button class="btn sm" type="button" data-act="newpet" data-f="${f.id}" data-sp="dog">${T.add_dog}</button><button class="btn sm" type="button" data-act="newpet" data-f="${f.id}" data-sp="cat">${T.add_cat}</button></div>
    <h2 class="sech">${T.recent_stays}</h2><div class="list">${stays.map(stayItem).join('')||`<div class="empty">${T.no_stays}</div>`}</div>
-   <div class="actions" id="dx" style="margin-top:22px"><button class="btn danger" type="button" data-act="askdelfam" data-f="${f.id}">${T.del_client}</button></div>`);
+   <div class="actions" id="dx" style="margin-top:22px"><button class="btn danger" type="button" data-act="askdelfam" data-f="${f.id}">${T.del_client}</button></div>`,'c:'+f.id);
 }
 function saveClient(t){
   const name=$('#cf-name').value.trim(),phone=$('#cf-phone').value.trim();
@@ -1335,11 +1533,13 @@ function stayFor(id){
    Mouse: drag straight away.  Drop on a cage row → validate.
    ============================================================ */
 const drag={bar:null,b:null,ghost:null,tip:null,timer:null,x0:0,y0:0,active:false,ptr:null,over:null,moved:false};
+/* the dragged copy moves with transform only (no layout work per frame), centred under the finger */
+const ghostAt=(g,e)=>{g.style.transform=`translate3d(${e.clientX}px,${e.clientY}px,0) translate(-50%,-50%) scale(1.04)`};
 function dragStart(e){
   const bar=drag.bar;const b=bookings.find(x=>x.id===bar.dataset.b);if(!b)return;
   drag.active=true;drag.b=b;document.body.classList.add('dragging');
-  bar.classList.add('lift');
-  const g=bar.cloneNode(true);g.classList.add('ghost');g.classList.remove('lift','cl','cr','half','l0','l1');g.style.left=e.clientX+'px';g.style.top=e.clientY+'px';g.style.width=Math.min(bar.offsetWidth,220)+'px';g.style.height='36px';g.style.fontSize='13px';
+  bar.classList.remove('press');bar.classList.add('lift');
+  const g=bar.cloneNode(true);g.classList.add('ghost');g.classList.remove('lift','press','arrive','cl','cr','half','l0','l1');g.style.left='0';g.style.top='0';ghostAt(g,e);g.style.width=Math.min(bar.offsetWidth,220)+'px';g.style.height='36px';g.style.fontSize='13px';
   document.body.appendChild(g);drag.ghost=g;
   const tip=document.createElement('div');tip.className='dragtip';tip.textContent=T.drag_hint;document.body.appendChild(tip);drag.tip=tip;
   if(navigator.vibrate)navigator.vibrate(15);
@@ -1347,7 +1547,7 @@ function dragStart(e){
 }
 function dragOver(e){
   if(!drag.active)return;
-  drag.ghost.style.left=e.clientX+'px';drag.ghost.style.top=e.clientY+'px';
+  ghostAt(drag.ghost,e);
   const el=document.elementFromPoint(e.clientX,e.clientY);
   const row=el&&el.closest('.crow');
   const id=row?row.dataset.cage:null;
@@ -1375,11 +1575,12 @@ function dragEnd(commit){
     drag.active=false;
     if(commit&&target&&target!==b.cage)doMove(b.id,target);
   }
+  drag.bar&&drag.bar.classList.remove('press');
   drag.bar=null;drag.b=null;drag.ghost=null;drag.tip=null;drag.over=null;drag.ptr=null;
 }
 document.addEventListener('pointerdown',e=>{
   const bar=e.target.closest('.bar');if(!bar||e.button>0)return;
-  drag.bar=bar;drag.x0=e.clientX;drag.y0=e.clientY;drag.ptr=e.pointerId;drag.moved=false;
+  drag.bar=bar;drag.x0=e.clientX;drag.y0=e.clientY;drag.ptr=e.pointerId;drag.moved=false;bar.classList.add('press');
   if(e.pointerType==='mouse'){drag.timer=null}
   else{drag.timer=setTimeout(()=>{drag.timer=null;dragStart(e)},350)}
 },{passive:true});
@@ -1388,7 +1589,7 @@ document.addEventListener('pointermove',e=>{
   const dx=Math.abs(e.clientX-drag.x0),dy=Math.abs(e.clientY-drag.y0);
   if(!drag.active){
     if(dx>8||dy>8){drag.moved=true;
-      if(drag.timer){clearTimeout(drag.timer);drag.timer=null;drag.bar=null;return} /* touch: scrolled before hold ended → not a drag */
+      if(drag.timer){clearTimeout(drag.timer);drag.timer=null;drag.bar.classList.remove('press');drag.bar=null;return} /* touch: scrolled before hold ended → not a drag */
       dragStart(e);
     }
     return;
@@ -1399,6 +1600,7 @@ document.addEventListener('pointerup',e=>{if(drag.bar||drag.active){const was=dr
 document.addEventListener('pointercancel',()=>dragEnd(false));
 document.addEventListener('contextmenu',e=>{if(e.target.closest('.bar'))e.preventDefault()});
 document.addEventListener('touchmove',e=>{if(drag.active)e.preventDefault()},{passive:false});
+document.addEventListener('touchstart',()=>{},{passive:true});   /* iPhone only shows :active (the pressed look) when a touchstart listener exists */
 
 
 /* ============================================================
@@ -1409,7 +1611,7 @@ document.addEventListener('click',e=>{
   const t=e.target.closest('[data-view],[data-act],[data-b],[data-lang]');if(!t)return;
   const D=t.dataset,a=D.act;
   if(D.lang){setLang(D.lang);return}
-  if(D.view&&!a){syncForms();view=D.view;closeSheet();render();window.scrollTo(0,0);return}
+  if(D.view&&!a){syncForms();const changed=D.view!==view;view=D.view;closeSheet();render();if(changed)fadeMain();window.scrollTo(0,0);return}
   if(D.b&&!a){openStay(D.b);return}
   switch(a){
     case 'sp':setSp(D.sp);break;
@@ -1441,7 +1643,7 @@ document.addEventListener('click',e=>{
         <div class="actions" style="margin-top:4px"><button class="btn danger fill" type="button" data-act="dodelfam" data-f="${f.id}">${T.yes_del}</button><button class="btn" type="button" data-act="client" data-f="${f.id}">${T.cancel}</button></div></div>`;
       $('#dx').scrollIntoView({block:'nearest'});break}
     case 'dodelfam':Store.deleteFamily(D.f);if(nb.client===D.f)nb=freshNB();closeSheet();render();toast(T.client_deleted);break;
-    case 'newpet':{const f=famById(D.f);sheet(T.new_pet[D.sp],head(T.new_pet[D.sp],esc(f.name),'c:'+f.id)+petForm(null,f.id,D.sp,'c:'+f.id));$('#pf-name').focus();break}
+    case 'newpet':{const f=famById(D.f);sheet(T.new_pet[D.sp],head(T.new_pet[D.sp],esc(f.name),'c:'+f.id)+petForm(null,f.id,D.sp,'c:'+f.id),'np:'+f.id+D.sp);$('#pf-name').focus();break}
     case 'pet':openPet(D.p,D.back||'',D.mode==='edit');break;
     case 'savepet':savePet(t);break;
     case 'back':goBack(D.to);break;
@@ -1455,6 +1657,7 @@ document.addEventListener('click',e=>{
     case 'nocancel':openStay(D.b2);break;
     case 'docancel':Store.deleteBooking(D.b2);closeSheet();render();toast(T.cancelled);break;
     /* observations */
+    case 'altag':
     case 'obstag':t.setAttribute('aria-pressed',String(t.getAttribute('aria-pressed')!=='true'));break;
     case 'addobs':{
       const tags=$$('.sheet [data-act="obstag"][aria-pressed="true"]').map(x=>x.dataset.k),text=($('#obs-text').value||'').trim();
@@ -1469,9 +1672,9 @@ document.addEventListener('click',e=>{
     case 'delobs2':Store.deleteObs(D.o);toast(T.obs_deleted);openPet(D.p,D.back);render();break;
     /* account */
     case 'login':{
-      const em=$('#li-email').value.trim(),pw=$('#li-pass').value,box=$('#li-err');box.innerHTML='';t.disabled=true;
-      Remote.signIn(em,pw).then(async s=>{Store.user=(s&&s.user&&s.user.email)||em;authing=false;document.body.classList.remove('authing');await Store.load();startSync();render()})
-        .catch(err=>{console.error(err);t.disabled=false;box.innerHTML=`<div class="err">${T.login_bad}</div>`});break}
+      const em=$('#li-email').value.trim(),pw=$('#li-pass').value,box=$('#li-err');box.innerHTML=loadingView('login',true);t.disabled=true;
+      Remote.signIn(em,pw).then(async s=>{Store.user=(s&&s.user&&s.user.email)||em;authing=false;document.body.classList.remove('authing');main.innerHTML=loadingView('start');await Store.load();startSync();render()})
+        .catch(err=>{console.error(err);if(authing){t.disabled=false;box.innerHTML=`<div class="err">${T.login_bad}</div>`}else{main.innerHTML=`<div class="no"><b>${T.db_down}</b><br>${esc(err.message||err)}</div><div class="actions"><button class="btn blue" type="button" data-act="retry">${T.retry}</button></div>`}});break}
     case 'logout':Promise.resolve(Remote.signOut()).catch(()=>{}).then(()=>location.reload());break;
     case 'retry':location.reload();break;
   }
@@ -1513,6 +1716,7 @@ async function boot(){
   if(location.search.includes('reset')){LS.del(Local.KEY);try{history.replaceState(null,'',location.pathname+location.hash)}catch(e){}}
   chrome();
   if(SUPABASE.url&&SUPABASE.anonKey){
+    main.innerHTML=loadingView('start');
     try{
       await Remote.init();DB=Remote;
       const s=await Remote.session();
