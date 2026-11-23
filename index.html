@@ -303,6 +303,11 @@ h2[id]{scroll-margin-top:84px}
 .lab{padding:4px 6px}
 .lab b{overflow-wrap:anywhere}
 .lab small{line-height:1.15}
+
+/* ---- treatment counter, delete client ---- */
+.medline{display:block;margin-top:4px}
+.delbox{border:2px solid var(--danger);background:var(--danger-soft);border-radius:12px;padding:12px 14px;width:100%}
+.delbox p{margin:6px 0 0;font-size:15px}
 </style>
 </head>
 <body>
@@ -395,6 +400,11 @@ en:{
   add_dog:'+ Add a dog', add_cat:'+ Add a cat', new_pet:{dog:'New dog',cat:'New cat'}, stay_for:'New stay for this client', recent_stays:'Recent stays', no_stays:'No stays yet.',
   st_local:'Saved on this device only.', st_shared:'Shared database', logout:'Sign out',
   login_title:'Sign in', login_sub:'Use the email and password you were given.', email:'Email', password:'Password', login_btn:'Sign in', login_bad:'Email or password not correct.',
+  booked_by:'Booked by', last_change:'Last change', by_who:w=>`by ${w}`,
+  del_client:'Delete client', del_q:n=>`Delete ${n}?`, del_what:(p,b)=>`This also deletes ${p} pet${p===1?'':'s'}, ${b} stay${b===1?'':'s'} and all their observations. It cannot be undone.`,
+  del_active:'This client has a stay now or coming up. It will be deleted too.', yes_del:'Yes, delete', client_deleted:'Client deleted',
+  med_from:'Treatment from', med_to:'Until (last day)', med_hint:'Leave the dates empty if it is taken every day with no end.', med_err:'The last day has to be on or after the first day.',
+  med_day:(n,t)=>`Day ${n} of ${t}`, med_ends:d=>`ends ${d}`, med_last:'Last day', med_ended:d=>`Finished ${d}`, med_starts:d=>`Starts ${d}`,
   db_err:'Could not save', db_down:'Could not reach the database.', retry:'Try again',
 },
 es:{
@@ -465,6 +475,11 @@ es:{
   add_dog:'+ Añadir perro', add_cat:'+ Añadir gato', new_pet:{dog:'Perro nuevo',cat:'Gato nuevo'}, stay_for:'Nueva estancia para este cliente', recent_stays:'Últimas estancias', no_stays:'Aún no tiene estancias.',
   st_local:'Guardado solo en este aparato.', st_shared:'Base de datos compartida', logout:'Cerrar sesión',
   login_title:'Iniciar sesión', login_sub:'Usa el correo y la contraseña que te dieron.', email:'Correo', password:'Contraseña', login_btn:'Entrar', login_bad:'Correo o contraseña incorrectos.',
+  booked_by:'Reservado por', last_change:'Último cambio', by_who:w=>`por ${w}`,
+  del_client:'Eliminar cliente', del_q:n=>`¿Eliminar a ${n}?`, del_what:(p,b)=>`Se borrarán también ${p} mascota${p===1?'':'s'}, ${b} estancia${b===1?'':'s'} y todas sus observaciones. No se puede deshacer.`,
+  del_active:'Este cliente tiene una estancia ahora o próximamente. También se borrará.', yes_del:'Sí, eliminar', client_deleted:'Cliente eliminado',
+  med_from:'Tratamiento desde', med_to:'Hasta (último día)', med_hint:'Deja las fechas vacías si lo toma siempre, sin fecha de fin.', med_err:'El último día tiene que ser igual o posterior al primero.',
+  med_day:(n,t)=>`Día ${n} de ${t}`, med_ends:d=>`termina ${d}`, med_last:'Último día', med_ended:d=>`Terminó ${d}`, med_starts:d=>`Empieza ${d}`,
   db_err:'No se pudo guardar', db_down:'No se pudo conectar con la base de datos.', retry:'Reintentar',
 }};
 const LS={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
@@ -547,7 +562,7 @@ const Local={
   _save(){LS.set(this.KEY,JSON.stringify({families,pets,bookings,observations}))},
   async insertFamily(){this._save()}, async updateFamily(){this._save()},
   async insertPet(){this._save()}, async updatePet(){this._save()},
-  async insertBooking(){this._save()}, async updateBooking(){this._save()}, async deleteBooking(){this._save()},
+  async insertBooking(){this._save()}, async updateBooking(){this._save()}, async deleteBooking(){this._save()}, async deleteFamily(){this._save()},
   async insertObs(){this._save()}, async deleteObs(){this._save()},
 };
 async function loadSupabase(){
@@ -565,19 +580,20 @@ const Remote={
     const from=add(TODAY,-400);
     const [f,p,b,o]=await Promise.all([this.sb.from('families').select('*'),this.sb.from('pets').select('*'),
       this.sb.from('bookings').select('*').gte('end_date',from),this.sb.from('observations').select('*').gte('at',from)]);
-    return {families:this._q(f).map(x=>({id:x.id,name:x.name,phone:x.phone||''})),
-      pets:this._q(p).map(x=>({id:x.id,fam:x.family_id,species:x.species,name:x.name,breed:x.breed||'',size:x.size,food:x.food||'',meds:x.meds||'',notes:x.notes||''})),
-      bookings:this._q(b).map(x=>({id:x.id,fam:x.family_id,pets:x.pet_ids||[],cage:x.cage,start:x.start_date,end:x.end_date,groom:x.grooming_ids||[],vet:x.vet_ids||[]})),
-      observations:this._q(o).map(x=>({id:x.id,dog:x.pet_id,at:x.at,tags:x.tags||[],text:x.text||'',kind:x.kind||'note',issue:x.issue_id||null,status:x.status||''}))};
+    return {families:this._q(f).map(x=>({id:x.id,name:x.name,phone:x.phone||'',by:x.created_by||'',cAt:x.created_at||'',ub:x.updated_by||'',uAt:x.updated_at||''})),
+      pets:this._q(p).map(x=>({id:x.id,fam:x.family_id,species:x.species,name:x.name,breed:x.breed||'',size:x.size,food:x.food||'',meds:x.meds||'',notes:x.notes||'',medStart:x.meds_start||'',medEnd:x.meds_end||'',by:x.created_by||'',cAt:x.created_at||'',ub:x.updated_by||'',uAt:x.updated_at||''})),
+      bookings:this._q(b).map(x=>({id:x.id,fam:x.family_id,pets:x.pet_ids||[],cage:x.cage,start:x.start_date,end:x.end_date,groom:x.grooming_ids||[],vet:x.vet_ids||[],by:x.created_by||'',cAt:x.created_at||'',ub:x.updated_by||'',uAt:x.updated_at||''})),
+      observations:this._q(o).map(x=>({id:x.id,dog:x.pet_id,at:x.at,tags:x.tags||[],text:x.text||'',kind:x.kind||'note',issue:x.issue_id||null,status:x.status||'',by:x.created_by||'',cAt:x.created_at||'',ub:x.updated_by||'',uAt:x.updated_at||''}))};
   },
   async insertFamily(f){this._q(await this.sb.from('families').insert({id:f.id,name:f.name,phone:f.phone}))},
   async updateFamily(f){this._q(await this.sb.from('families').update({name:f.name,phone:f.phone}).eq('id',f.id))},
-  _pet(d){return {name:d.name,breed:d.breed,size:d.size,food:d.food,meds:d.meds,notes:d.notes}},
+  _pet(d){return {name:d.name,breed:d.breed,size:d.size,food:d.food,meds:d.meds,notes:d.notes,meds_start:d.medStart||null,meds_end:d.medEnd||null}},
   async insertPet(d){this._q(await this.sb.from('pets').insert(Object.assign({id:d.id,family_id:d.fam,species:d.species},this._pet(d))))},
   async updatePet(d){this._q(await this.sb.from('pets').update(this._pet(d)).eq('id',d.id))},
   async insertBooking(b){this._q(await this.sb.from('bookings').insert({id:b.id,family_id:b.fam,pet_ids:b.pets,cage:b.cage,start_date:b.start,end_date:b.end,grooming_ids:b.groom,vet_ids:b.vet}))},
   async updateBooking(b){this._q(await this.sb.from('bookings').update({cage:b.cage,start_date:b.start,end_date:b.end,grooming_ids:b.groom,vet_ids:b.vet}).eq('id',b.id))},
   async deleteBooking(id){this._q(await this.sb.from('bookings').delete().eq('id',id))},
+  async deleteFamily(id){this._q(await this.sb.from('families').delete().eq('id',id))},   /* the database removes their pets, stays and observations too */
   async insertObs(o){this._q(await this.sb.from('observations').insert({id:o.id,pet_id:o.dog,at:o.at,tags:o.tags,text:o.text,kind:o.kind,issue_id:o.issue,status:o.status}))},
   async deleteObs(id){this._q(await this.sb.from('observations').delete().eq('id',id))},
 };
@@ -585,10 +601,10 @@ let DB=Local;
 const Store={
   user:'', pending:0, chain:Promise.resolve(),
   _apply(d){
-    families=(d.families||[]).map(f=>({id:f.id,name:f.name,phone:f.phone||''}));
-    pets=(d.pets||d.dogs||[]).map(p=>Object.assign({species:'dog',breed:'',food:'',meds:'',notes:''},p));          /* older saves had only dogs */
+    families=(d.families||[]).map(f=>Object.assign({phone:''},f));
+    pets=(d.pets||d.dogs||[]).map(p=>Object.assign({species:'dog',breed:'',food:'',meds:'',notes:'',medStart:'',medEnd:''},p));          /* older saves had only dogs */
     const known=new Set(pets.map(p=>p.id));
-    bookings=(d.bookings||[]).map(b=>({id:b.id,fam:b.fam,pets:(b.pets||b.dogs||[]).filter(id=>known.has(id)),cage:b.cage,start:b.start,end:b.end,groom:b.groom||[],vet:b.vet||[]})).filter(b=>CAGE[b.cage]&&b.pets.length);
+    bookings=(d.bookings||[]).map(b=>({id:b.id,fam:b.fam,pets:(b.pets||b.dogs||[]).filter(id=>known.has(id)),cage:b.cage,start:b.start,end:b.end,groom:b.groom||[],vet:b.vet||[],by:b.by||'',cAt:b.cAt||'',ub:b.ub||'',uAt:b.uAt||''})).filter(b=>CAGE[b.cage]&&b.pets.length);
     observations=(d.observations||[]).filter(o=>known.has(o.dog)).map(o=>Object.assign({kind:'note',issue:null,status:''},o));
   },
   async load(){
@@ -599,16 +615,24 @@ const Store={
   async refresh(){if(DB===Local||this.pending)return;try{this._apply(await DB.load())}catch(e){console.error(e)}},
   /* writes go one after another, in order (a pet must not reach the database before its family) */
   _run(fn){this.pending++;this.chain=this.chain.then(fn).catch(e=>{console.error(e);toast(T.db_err+': '+(e.message||e),true);setTimeout(()=>this.refresh().then(softRender),50)}).finally(()=>{this.pending--});return this.chain},
-  addFamily(name,phone){const f={id:uuid(),name,phone:phone||''};families.push(f);this._run(()=>DB.insertFamily(f));return f.id},
-  updateFamily(id,patch){const f=famById(id);Object.assign(f,patch);this._run(()=>DB.updateFamily(f))},
-  addPet(fam,species,d){const x={id:uuid(),fam,species,name:d.name,breed:d.breed||'',size:species==='cat'?'C':(d.size||breedSize(d.breed)),food:d.food||'',meds:d.meds||'',notes:d.notes||''};pets.push(x);this._run(()=>DB.insertPet(x));return x.id},
-  updatePet(id,patch){const d=petById(id);Object.assign(d,patch);this._run(()=>DB.updatePet(d))},
-  addBooking(fam,ids,cage,s,e,svc){const b={id:uuid(),fam,pets:ids,cage,start:s,end:e,groom:(svc&&svc.groom)||[],vet:(svc&&svc.vet)||[]};bookings.push(b);this._run(()=>DB.insertBooking(b));return b},
-  moveBooking(id,cage){const b=bookings.find(x=>x.id===id);b.cage=cage;this._run(()=>DB.updateBooking(b))},
-  setDates(id,s,e){const b=bookings.find(x=>x.id===id);b.start=s;b.end=e;this._run(()=>DB.updateBooking(b))},
-  setSvc(id,k,pet,on){const b=bookings.find(x=>x.id===id);b[k]=b[k].filter(x=>x!==pet);if(on)b[k].push(pet);this._run(()=>DB.updateBooking(b))},
+  _new(){return {by:this.user,cAt:new Date().toISOString(),ub:'',uAt:''}},
+  _touch(x){x.ub=this.user;x.uAt=new Date().toISOString();return x},
+  addFamily(name,phone){const f=Object.assign({id:uuid(),name,phone:phone||''},this._new());families.push(f);this._run(()=>DB.insertFamily(f));return f.id},
+  updateFamily(id,patch){const f=this._touch(famById(id));Object.assign(f,patch);this._run(()=>DB.updateFamily(f))},
+  addPet(fam,species,d){const x={id:uuid(),fam,species,name:d.name,breed:d.breed||'',size:species==='cat'?'C':(d.size||breedSize(d.breed)),food:d.food||'',meds:d.meds||'',notes:d.notes||'',medStart:d.medStart||'',medEnd:d.medEnd||''};Object.assign(x,this._new());pets.push(x);this._run(()=>DB.insertPet(x));return x.id},
+  updatePet(id,patch){const d=this._touch(petById(id));Object.assign(d,patch);this._run(()=>DB.updatePet(d))},
+  addBooking(fam,ids,cage,s,e,svc){const b={id:uuid(),fam,pets:ids,cage,start:s,end:e,groom:(svc&&svc.groom)||[],vet:(svc&&svc.vet)||[]};Object.assign(b,this._new());bookings.push(b);this._run(()=>DB.insertBooking(b));return b},
+  moveBooking(id,cage){const b=this._touch(bookings.find(x=>x.id===id));b.cage=cage;this._run(()=>DB.updateBooking(b))},
+  setDates(id,s,e){const b=this._touch(bookings.find(x=>x.id===id));b.start=s;b.end=e;this._run(()=>DB.updateBooking(b))},
+  setSvc(id,k,pet,on){const b=this._touch(bookings.find(x=>x.id===id));b[k]=b[k].filter(x=>x!==pet);if(on)b[k].push(pet);this._run(()=>DB.updateBooking(b))},
   deleteBooking(id){bookings=bookings.filter(b=>b.id!==id);this._run(()=>DB.deleteBooking(id))},
-  addObs(dog,tags,text,x){const o=Object.assign({id:uuid(),dog,at:new Date().toISOString(),tags,text,kind:'note',issue:null,status:''},x||{});observations.push(o);this._run(()=>DB.insertObs(o));return o},
+  deleteFamily(id){
+    const mine=new Set(pets.filter(p=>p.fam===id).map(p=>p.id));
+    observations=observations.filter(o=>!mine.has(o.dog));bookings=bookings.filter(b=>b.fam!==id);
+    pets=pets.filter(p=>p.fam!==id);families=families.filter(f=>f.id!==id);
+    this._run(()=>DB.deleteFamily(id));
+  },
+  addObs(dog,tags,text,x){const o=Object.assign({id:uuid(),dog,at:new Date().toISOString(),tags,text,kind:'note',issue:null,status:''},this._new(),x||{});observations.push(o);this._run(()=>DB.insertObs(o));return o},
   deleteObs(id){observations=observations.filter(o=>o.id!==id&&o.issue!==id);this._run(()=>DB.deleteObs(id))},   /* a problem takes its daily checks with it */
   checkIssue(i,status){const old=issueToday(i);if(old)this.deleteObs(old.id);return this.addObs(i.dog,[],'',{kind:'check',issue:i.id,status})},
   closeIssue(i){return this.addObs(i.dog,[],'',{kind:'done',issue:i.id})},
@@ -774,6 +798,19 @@ const issueLast=i=>issueChecks(i)[0];
 const issueDay=i=>diff(localDay(i.at),TODAY)+1;
 const issueRed=i=>issueDay(i)>=RED_DAYS||!!(issueLast(i)&&issueLast(i).status==='worse');
 function openIssues(id){const st=curStay(id);if(!st)return [];return observations.filter(o=>o.dog===id&&o.kind==='problem'&&!issueDone(o)&&localDay(o.at)>=st.start).sort((a,b)=>a.at<b.at?-1:1)}
+/* who did it: the part of the email before @ */
+const who=e=>e?cap(String(e).split('@')[0]):'';
+/* treatment with dates: where today falls in it */
+function medInfo(d){
+  if(!d.meds)return null;
+  if(!d.medEnd)return {active:true};
+  const st=d.medStart||TODAY;
+  if(TODAY<st)return {active:false,future:true,label:T.med_starts(fmt(st))};
+  if(TODAY>d.medEnd)return {active:false,ended:true,label:T.med_ended(fmt(d.medEnd))};
+  const day=diff(st,TODAY)+1,total=diff(st,d.medEnd)+1,last=TODAY===d.medEnd;
+  return {active:true,day,total,last,chip:T.med_day(day,total),label:last?T.med_last:T.med_ends(fmt(d.medEnd))};
+}
+const medChip=m=>m&&m.chip?`<span class="chip ${m.last?'bad':'warn'}">${m.chip}</span> <span class="hint">${m.label}</span>`:m&&m.label?`<span class="hint">${m.label}</span>`:'';
 const isOver=b=>{const c=CAGE[b.cage];return c.sp==='cat'&&b.pets.length>c.normal};
 const isEmg=b=>!!CAGE[b.cage].res||CAGE[b.cage].tier===4||isOver(b);
 
@@ -787,7 +824,7 @@ const DAYS=21;
 const MAXD=6;            /* most animals in one booking (same family) */
 let authing=false;       /* true while the sign-in screen is showing */
 let cq='';               /* search text in Clients */
-const blankPet=()=>({name:'',breed:'',size:'M',food:'',meds:'',notes:'',svc:{groom:false,vet:false}});
+const blankPet=()=>({name:'',breed:'',size:'M',food:'',meds:'',notes:'',medStart:'',medEnd:'',svc:{groom:false,vet:false}});
 const freshNB=()=>({s:add(TODAY,1),e:add(TODAY,4),client:null,q:'',picked:[],nNew:1,news:Array.from({length:MAXD},blankPet),svcSaved:{groom:{},vet:{}},fname:'',phone:'',step:1,opt:null,opts:[]});
 let nb=freshNB();        /* the stay being booked in "New stay" */
 const $=s=>document.querySelector(s);
@@ -866,7 +903,7 @@ function viewToday(){
   const stay=B.filter(b=>covers(b,TODAY)),ins=B.filter(b=>b.start===TODAY),outs=B.filter(b=>b.end===TODAY);
   const here=stay.concat(outs);                                   /* everyone on site at some point today */
   const rows=here.flatMap(b=>bPets(b).map(d=>({b,d})));
-  const meds=rows.filter(x=>x.d.meds);
+  const meds=rows.map(x=>Object.assign({m:medInfo(x.d)},x)).filter(x=>x.m&&x.m.active);
   const since=Date.now()-48*3600*1000;
   const issues=rows.flatMap(x=>openIssues(x.d.id).map(i=>({b:x.b,d:x.d,i}))).sort((a,b)=>issueRed(b.i)-issueRed(a.i)||issueDay(b.i)-issueDay(a.i));
   const obsNow=rows.map(x=>Object.assign({o:obsOf(x.d.id).find(o=>o.kind==='note')},x)).filter(x=>x.o&&new Date(x.o.at).getTime()>=since);
@@ -884,7 +921,7 @@ function viewToday(){
   if(meds.length||emg.length||obsNow.length||svcs.length||issues.length){
     h+=`<h2>${T.attention}</h2><div class="list">`;
     issues.forEach(x=>h+=issueCard(x.i,x.d,x.b,'',false));
-    meds.forEach(x=>h+=`<button class="alert item" data-act="pet" data-p="${x.d.id}"><b>💊</b><span><b>${esc(x.d.name)}</b> (${cname(x.b.cage)}): ${esc(x.d.meds)}</span></button>`);
+    meds.forEach(x=>h+=`<button class="alert item" data-act="pet" data-p="${x.d.id}"><b>💊</b><span><b>${esc(x.d.name)}</b> (${cname(x.b.cage)}): ${esc(x.d.meds)}${x.m.chip?`<span class="medline">${medChip(x.m)}</span>`:''}</span></button>`);
     obsNow.forEach(x=>h+=`<button class="alert item" data-act="pet" data-p="${x.d.id}"><b>🩺</b><span><b>${esc(x.d.name)}</b> (${cname(x.b.cage)}): ${obsLine(x.o)} <span class="hint">· ${fmtAt(x.o.at)}</span></span></button>`);
     svcs.forEach(x=>h+=`<button class="alert item" data-b="${x.b.id}"><b>${x.s.icon}</b><span>${T.svc_due(T[x.s.k],`<b>${esc(x.d.name)}</b>`,cname(x.b.cage),fmt(x.b.end))}</span></button>`);
     emg.forEach(b=>{const c=CAGE[b.cage],n=`<b>${esc(names(b))}</b>`;h+=`<button class="alert item" data-b="${b.id}"><b>!</b><span>${c.res?T.emg_rec1(n,b.cage):isOver(b)?T.emg_over(n,cname(c),c.normal):T.emg_large(n,cname(c))}</span></button>`});
@@ -1020,6 +1057,15 @@ function nbResults(){
 
 /* ---------- New stay: step 2 (details and save) ---------- */
 const svcFields=(key,get)=>`<span class="flab">${T.extras}</span>`+svcFor(sp).map(s=>`<div class="grow"><span class="flab">${s.icon} ${T[s.k]}</span><div class="seg" role="group" aria-label="${T[s.k]}">${[0,1].map(v=>`<button type="button" data-act="nbsvc" data-s="${s.k}" data-k="${key}" data-v="${v}" aria-pressed="${!!get(s.k)===!!v}">${v?T.yes:T.no}</button>`).join('')}</div></div>`).join('');
+/* optional first / last day of a treatment */
+const medDates=(px,d)=>`<div class="grid2"><div class="field"><label for="${px}-ms">${T.med_from}</label><input type="date" id="${px}-ms" value="${d.medStart||''}"></div><div class="field"><label for="${px}-me">${T.med_to}</label><input type="date" id="${px}-me" value="${d.medEnd||''}"></div></div><span class="hint" style="margin-top:-6px">${T.med_hint}</span>`;
+/* tidy the dates before saving: no medication = no dates; an end with no start starts on dflt */
+function fixMed(d,dflt){
+  if(!d.meds){d.medStart='';d.medEnd='';return null}
+  if(!d.medEnd){d.medStart='';return null}
+  if(!d.medStart)d.medStart=dflt;
+  return d.medEnd<d.medStart?T.med_err:null;
+}
 function viewNewDetails(){
   const o=nb.opt,labels=nbLabels(),k=diff(nb.s,nb.e),f=nb.client&&famById(nb.client);
   const saved=nbPicked();
@@ -1038,6 +1084,7 @@ function viewNewDetails(){
      ${sp==='dog'?`<div class="field"><label for="nd-p${i}-size">${T.size}</label><select id="nd-p${i}-size">${ALL.map(z=>`<option value="${z}"${z===d.size?' selected':''}>${T.sizes[z]}</option>`).join('')}</select></div>`:''}
      <div class="field"><label for="nd-p${i}-food">${T.food}</label><input id="nd-p${i}-food" value="${esc(d.food)}"></div>
      <div class="field"><label for="nd-p${i}-meds">${T.meds}</label><input id="nd-p${i}-meds" value="${esc(d.meds)}" placeholder="${T.none}"></div>
+     ${medDates(`nd-p${i}`,d)}
      <div class="field"><label for="nd-p${i}-notes">${T.notes}</label><textarea id="nd-p${i}-notes" rows="2">${esc(d.notes)}</textarea></div>
      ${svcFields('n:'+i,k=>d.svc[k])}</div>`;
   }
@@ -1050,7 +1097,8 @@ function syncDetails(){
   for(let i=0;i<nb.nNew;i++){const d=nb.news[i];
     set(d,'name',v(`nd-p${i}-name`));const br=v(`nd-p${i}-breed`);if(br!==null)d.breed=breedKey(br);
     const sz=v(`nd-p${i}-size`);if(sz)d.size=sz;
-    set(d,'food',v(`nd-p${i}-food`));set(d,'meds',v(`nd-p${i}-meds`));set(d,'notes',v(`nd-p${i}-notes`));}
+    set(d,'food',v(`nd-p${i}-food`));set(d,'meds',v(`nd-p${i}-meds`));set(d,'notes',v(`nd-p${i}-notes`));
+    set(d,'medStart',v(`nd-p${i}-ms`));set(d,'medEnd',v(`nd-p${i}-me`));}
 }
 let saving=false;
 async function nbSave(){
@@ -1059,6 +1107,7 @@ async function nbSave(){
   const box=$('#nd-err'),errs=[];
   if(!nb.client&&!nb.fname)errs.push(T.e_fam);
   for(let i=0;i<nb.nNew;i++)if(!nb.news[i].name)errs.push(T.e_pet(T.new_n(sp,i+1).toLowerCase()));
+  for(let i=0;i<nb.nNew;i++){const d=nb.news[i],r=fixMed(d,nb.s>TODAY?nb.s:TODAY);if(r)errs.push(`${esc(d.name)||T.new_n(sp,i+1)}: ${r}`)}
   if(errs.length){box.innerHTML=`<div class="err">${errs.join('<br>')}</div>`;box.scrollIntoView({block:'center'});return}
   saving=true;
   try{
@@ -1115,7 +1164,7 @@ function issueCard(i,d,b,back,inSheet){
   const red=issueRed(i),td=issueToday(i),lbl=CHK(),x=`data-i="${i.id}" data-back="${back||''}"${inSheet?' data-sheet="1"':''}`;
   return `<div class="issue${red?' red':''}">
    <button class="ihead" type="button" data-act="pet" data-p="${d.id}" data-back="${back||''}"><b class="ic">🩺</b><span><b>${esc(d.name)}</b>${b?` (${cname(b.cage)})`:''}: ${obsLine(i)||T.obs_tags.other}</span></button>
-   <div class="imeta"><span class="chip ${red?'bad':'warn'}">${T.day_n(issueDay(i))}</span><span class="hint">${T.since(fmtAt(i.at))} · ${td?T.chk_today(lbl[td.status]):T.chk_none}</span></div>
+   <div class="imeta"><span class="chip ${red?'bad':'warn'}">${T.day_n(issueDay(i))}</span><span class="hint">${T.since(fmtAt(i.at))}${i.by?` · ${who(i.by)}`:''} · ${td?T.chk_today(lbl[td.status])+(td.by?` (${who(td.by)})`:''):T.chk_none}</span></div>
    <div class="irow"><span class="flab">${T.chk_q}</span><div class="seg">${['same','better','worse'].map(k=>`<button type="button" data-act="icheck" data-s="${k}" ${x} aria-pressed="${!!td&&td.status===k}">${lbl[k]}</button>`).join('')}</div></div>
    <button class="btn sm fine" type="button" data-act="idone" ${x}>✓ ${T.all_fine}</button></div>`;
 }
@@ -1128,7 +1177,7 @@ function obsRow(o,d,bk,open){
     if(o.kind==='problem'){if(issueDone(o))chips.push(`<span class="chip ok">${T.st_resolved}</span>`);else if(open.includes(o))chips.push(`<span class="chip plain">${T.st_follow}</span>`)}
     body=`${chips.length?`<div class="tags">${chips.join('')}</div>`:''}${o.text?`<p>${esc(o.text)}</p>`:''}`;
   }
-  return `<div class="obs${o.kind==='check'||o.kind==='done'?' minor':''}"><div class="oh"><span class="hint">${fmtAt(o.at)}</span><button class="btn sm obsx" type="button" data-act="delobs" data-o="${o.id}" data-p="${d.id}" data-back="${bk}">${T.obs_del}</button></div>${body}</div>`;
+  return `<div class="obs${o.kind==='check'||o.kind==='done'?' minor':''}"><div class="oh"><span class="hint">${fmtAt(o.at)}${o.by?` · ${T.by_who(who(o.by))}`:''}</span><button class="btn sm obsx" type="button" data-act="delobs" data-o="${o.id}" data-p="${d.id}" data-back="${bk}">${T.obs_del}</button></div>${body}</div>`;
 }
 function obsSection(d,back){
   const list=obsOf(d.id),bk=back||'',open=openIssues(d.id);
@@ -1164,9 +1213,11 @@ function openStay(id,edit){
    <dl class="kv"><dt>${T.status}</dt><dd><span class="chip${st==='st_in'?' ok':' plain'}">${T[st]}</span></dd>
    <dt>${T.dates}</dt><dd>${fmt(b.start)} → ${fmt(b.end)} · ${n} ${n===1?T.night:T.nights}</dd>
    <dt>${T.cage}</dt><dd><span class="chip${isEmg(b)?' warn':''}">${cname(c)}</span>${c.res?` <span class="hint">${T.rec1_sleep(c.res)}</span>`:''}${isOver(b)?` <span class="hint">${T.n_over(cname(c),nP(c.normal,'cat'))}</span>`:''}</dd>
-   <dt>${T.phone}</dt><dd class="telrow">${telHTML(f.phone)}</dd></dl>
+   <dt>${T.phone}</dt><dd class="telrow">${telHTML(f.phone)}</dd>
+   ${b.by?`<dt>${T.booked_by}</dt><dd>${who(b.by)}${b.cAt?` <span class="hint">· ${fmtAt(b.cAt)}</span>`:''}</dd>`:''}
+   ${b.ub?`<dt>${T.last_change}</dt><dd>${who(b.ub)}${b.uAt?` <span class="hint">· ${fmtAt(b.uAt)}</span>`:''}</dd>`:''}</dl>
    ${ps.map(d=>{const o=obsOf(d.id).filter(x=>x.kind==='note'||x.kind==='problem'),op=openIssues(d.id);return `<div class="petcard"><div class="hd">${badges([d.size])}<b>${esc(d.name)}</b><span class="hint">${petLine(d)}</span><button class="linkbtn go" type="button" data-act="pet" data-p="${d.id}" data-back="${back}">${T.profile}</button></div>
-     <dl><dt>${T.food}</dt><dd>${esc(d.food)||'—'}</dd><dt>${T.meds}</dt><dd>${d.meds?`<b class="warnt">${esc(d.meds)}</b>`:T.none}</dd><dt>${T.notes}</dt><dd>${esc(d.notes)||'—'}</dd>
+     <dl><dt>${T.food}</dt><dd>${esc(d.food)||'—'}</dd><dt>${T.meds}</dt><dd>${d.meds?`<b class="warnt">${esc(d.meds)}</b>${medInfo(d).chip||medInfo(d).label?`<br>${medChip(medInfo(d))}`:''}`:T.none}</dd><dt>${T.notes}</dt><dd>${esc(d.notes)||'—'}</dd>
      <dt>${T.obs}</dt><dd>${op.length?op.map(i=>`<b class="${issueRed(i)?'badt':'warnt'}">${obsLine(i)||T.obs_tags.other} · ${T.day_n(issueDay(i))}</b>`).join('<br>'):o.length?`${obsLine(o[0])} <span class="hint">· ${fmtAt(o[0].at)}${o.length>1?` · +${o.length-1}`:''}</span>`:'—'}</dd></dl>
      ${svcFor(c.sp).map(s=>{const on=b[s.k].includes(d.id);return `<div class="grow"><span class="flab">${s.icon} ${T[s.k]}</span><div class="seg">${[0,1].map(v=>`<button type="button" data-act="svc" data-s="${s.k}" data-b2="${b.id}" data-p="${d.id}" data-v="${v}" aria-pressed="${on===!!v}">${v?T.yes:T.no}</button>`).join('')}</div></div>`}).join('')}</div>`}).join('')}
    <div class="moverow"><label class="flab" for="mv">${T.move_to}</label>${others.length?`<select id="mv">${others.map(x=>`<option value="${x.id}">${cname(x)}${x.res?` · ${x.res}`:''}${x.tier===4?` · ${T.t4}`:''}${ps.length>x.normal?` · ${T.t5}`:''}</option>`).join('')}</select><button class="btn blue sm" type="button" data-act="domove" data-b2="${b.id}">${T.move}</button>`:`<span class="hint">${T.no_other}</span>`}</div>
@@ -1201,6 +1252,7 @@ function petForm(d,fam,species,back){
    ${dog?`<div class="field"><label for="pf-size">${T.size}</label><select id="pf-size">${ALL.map(z=>`<option value="${z}"${z===x.size?' selected':''}>${T.sizes[z]}</option>`).join('')}</select><span class="hint">${T.size_hint}</span></div>`:''}
    <div class="field"><label for="pf-food">${T.food}</label><input id="pf-food" value="${esc(x.food)}"></div>
    <div class="field"><label for="pf-meds">${T.meds}</label><input id="pf-meds" value="${esc(x.meds)}" placeholder="${T.none}"></div>
+   ${medDates('pf',x)}
    <div class="field"><label for="pf-notes">${T.notes}</label><textarea id="pf-notes" rows="3">${esc(x.notes)}</textarea></div>
    <div id="pf-err"></div>
    <div class="actions" style="margin-top:4px"><button class="btn primary" type="button" data-act="savepet" data-p="${d?d.id:''}" data-f="${fam}" data-sp="${species}" data-back="${back||''}">${T.save}</button>
@@ -1217,7 +1269,7 @@ function openPet(id,back,edit){
     ${d.species==='dog'?`<dt>${T.size}</dt><dd>${T.sizes[d.size]}</dd>`:''}
     <dt>${T.owner}</dt><dd><button class="linkbtn" type="button" data-act="client" data-f="${f.id}">${esc(f.name)}</button></dd>
     <dt>${T.phone}</dt><dd class="telrow">${telHTML(f.phone)}</dd>
-    <dt>${T.meds}</dt><dd>${d.meds?`<b class="warnt">💊 ${esc(d.meds)}</b>`:T.none}</dd>
+    <dt>${T.meds}</dt><dd>${d.meds?`<b class="warnt">💊 ${esc(d.meds)}</b>${medInfo(d).chip||medInfo(d).label?`<br>${medChip(medInfo(d))}`:''}`:T.none}</dd>
     <dt>${T.food}</dt><dd>${esc(d.food)||'—'}</dd>
     <dt>${T.notes}</dt><dd>${esc(d.notes)||'—'}</dd></dl>
    <div class="actions" style="margin-top:0"><button class="btn blue sm" type="button" data-act="pet" data-p="${d.id}" data-back="${back||''}" data-mode="edit">${T.edit}</button></div>
@@ -1229,7 +1281,9 @@ function savePet(t){
   const id=t.dataset.p,fam=t.dataset.f,species=t.dataset.sp,back=t.dataset.back;
   const name=v('pf-name').trim();
   if(!name){$('#pf-err').innerHTML=`<div class="err">${T.e_pet(T.spn[species][0])}</div>`;$('#pf-name').focus();return}
-  const data={name,breed:breedKey(v('pf-breed')),food:v('pf-food').trim(),meds:v('pf-meds').trim(),notes:v('pf-notes').trim()};
+  const data={name,breed:breedKey(v('pf-breed')),food:v('pf-food').trim(),meds:v('pf-meds').trim(),notes:v('pf-notes').trim(),medStart:v('pf-ms'),medEnd:v('pf-me')};
+  const me=fixMed(data,TODAY);
+  if(me){$('#pf-err').innerHTML=`<div class="err">${me}</div>`;$('#pf-me').focus();return}
   if(species==='dog')data.size=v('pf-size');
   if(!id){Store.addPet(fam,species,data);toast(T.pet_saved);openClient(fam);render();return}
   Store.updatePet(id,data);
@@ -1260,7 +1314,8 @@ function openClient(id,edit){
    <h2 class="sech">${T.pets}</h2>
    <div class="list">${mine.map(p=>`<button class="item" data-act="pet" data-p="${p.id}" data-back="${back}"><span class="badges">${badges([p.size])}</span><span class="tx"><b>${esc(p.name)}</b><span>${petLine(p)}</span></span>${here(p)?`<span class="rt"><span class="chip ok">${T.st_in}</span></span>`:''}</button>`).join('')||`<div class="empty">${T.no_pets}</div>`}</div>
    <div class="actions" style="margin-top:8px"><button class="btn sm" type="button" data-act="newpet" data-f="${f.id}" data-sp="dog">${T.add_dog}</button><button class="btn sm" type="button" data-act="newpet" data-f="${f.id}" data-sp="cat">${T.add_cat}</button></div>
-   <h2 class="sech">${T.recent_stays}</h2><div class="list">${stays.map(stayItem).join('')||`<div class="empty">${T.no_stays}</div>`}</div>`);
+   <h2 class="sech">${T.recent_stays}</h2><div class="list">${stays.map(stayItem).join('')||`<div class="empty">${T.no_stays}</div>`}</div>
+   <div class="actions" id="dx" style="margin-top:22px"><button class="btn danger" type="button" data-act="askdelfam" data-f="${f.id}">${T.del_client}</button></div>`);
 }
 function saveClient(t){
   const name=$('#cf-name').value.trim(),phone=$('#cf-phone').value.trim();
@@ -1379,6 +1434,13 @@ document.addEventListener('click',e=>{
     case 'newclient':openClient(null,true);break;
     case 'saveclient':saveClient(t);break;
     case 'stayfor':stayFor(D.f);break;
+    case 'askdelfam':{
+      const f=famById(D.f);if(!f)break;
+      const np=pets.filter(p=>p.fam===f.id).length,mb=bookings.filter(b=>b.fam===f.id),active=mb.some(b=>b.end>=TODAY);
+      $('#dx').innerHTML=`<div class="delbox"><b>${T.del_q(esc(f.name))}</b><p>${T.del_what(np,mb.length)}</p>${active?`<p class="badt"><b>${T.del_active}</b></p>`:''}
+        <div class="actions" style="margin-top:4px"><button class="btn danger fill" type="button" data-act="dodelfam" data-f="${f.id}">${T.yes_del}</button><button class="btn" type="button" data-act="client" data-f="${f.id}">${T.cancel}</button></div></div>`;
+      $('#dx').scrollIntoView({block:'nearest'});break}
+    case 'dodelfam':Store.deleteFamily(D.f);if(nb.client===D.f)nb=freshNB();closeSheet();render();toast(T.client_deleted);break;
     case 'newpet':{const f=famById(D.f);sheet(T.new_pet[D.sp],head(T.new_pet[D.sp],esc(f.name),'c:'+f.id)+petForm(null,f.id,D.sp,'c:'+f.id));$('#pf-name').focus();break}
     case 'pet':openPet(D.p,D.back||'',D.mode==='edit');break;
     case 'savepet':savePet(t);break;
