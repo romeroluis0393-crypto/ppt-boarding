@@ -239,6 +239,16 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
 input,select,textarea{font-size:17px;min-height:48px}
 .seg button{font-size:15px;min-height:44px;padding:8px 14px}
 .seg button.num{min-width:48px;justify-content:center;font-weight:800}
+/* date fields: iOS gives them its own minimum width and they overflow; the native look is removed so they keep to their column
+   and keep the same height as the other fields, also when empty */
+input[type="date"]{-webkit-appearance:none;appearance:none;display:block;width:100%;max-width:100%;min-width:0;height:48px;min-height:48px;line-height:26px;text-align:left}
+input[type="date"]::-webkit-date-and-time-value{text-align:left;min-height:26px}
+input[type="date"]::-webkit-datetime-edit{padding:0;max-width:100%;overflow:hidden}
+.grid2.dates>.field{min-width:0;overflow:hidden}
+@media (max-width:359px){.grid2.dates{grid-template-columns:minmax(0,1fr)}}
+body.big .grid2.dates{grid-template-columns:minmax(0,1fr)}
+.okbox{color:var(--ink);background:var(--surface);border:2px solid var(--ok);padding:10px 12px;border-radius:10px;font-size:15px;font-weight:700}
+.btn.wide{width:100%}
 .sz.C{background:var(--sC)}
 .hdate{display:none}
 @media (min-width:560px){.hdate{display:inline}}
@@ -489,15 +499,22 @@ en:{
   add_dog:'+ Add a dog', add_cat:'+ Add a cat', new_pet:{dog:'New dog',cat:'New cat'}, stay_for:'New stay for this client', recent_stays:'Recent stays', no_stays:'No stays yet.',
   st_local:'Saved on this device only.', st_shared:'Shared database', logout:'Sign out',
   login_title:'Sign in', login_sub:'Use the email and password you were given.', email:'Email', password:'Password', login_btn:'Sign in', login_bad:'Email or password not correct.',
+  forgot:'Forgot your password?', forgot_need:'Write your email above first, then tap "Forgot your password?" again.',
+  forgot_sent:'If that email has an account, we have sent it a link to choose a new password. Check your inbox and the spam folder.',
+  forgot_fail:"Couldn't send the email. Ask Luis to reset your password.", busy_forgot:'Sending…',
+  rec_title:'Choose a new password', rec_sub:'Write the same new password twice. At least 6 characters.', rec_new:'New password', rec_again:'Repeat the new password',
+  rec_btn:'Save new password', rec_short:'The password needs at least 6 characters.', rec_diff:'The two passwords are not the same. Write them again.',
+  rec_same:'The new password has to be different from the old one.', rec_fail:'Could not save the password. Try again.',
+  rec_bad:'This link has expired or was already used. Write your email and tap "Forgot your password?" to get a new one.', rec_ok:'Password changed', rec_back:'Back to sign in',
   booked_by:'Booked by', last_change:'Last change', by_who:w=>`by ${w}`,
   del_client:'Delete client', del_q:n=>`Delete ${n}?`, del_what:(p,b)=>`This also deletes ${p} pet${p===1?'':'s'}, ${b} stay${b===1?'':'s'} and all their observations. It cannot be undone.`,
   del_active:'This client has a stay now or coming up. It will be deleted too.', yes_del:'Yes, delete', client_deleted:'Client deleted',
   med_from:'Treatment from', med_to:'Until (last day)', med_hint:'Leave the dates empty if it is taken every day with no end.', med_err:'The last day has to be on or after the first day.',
   med_day:(n,t)=>`Day ${n} of ${t}`, med_ends:d=>`ends ${d}`, med_last:'Last day', med_ended:d=>`Finished ${d}`, med_starts:d=>`Starts ${d}`,
   db_err:'Could not save', db_down:'Could not reach the database.', retry:'Try again',
-  alerts:'Alerts', al_note:'Details (optional)', al_ph:'E.g. always walk on a short lead', lg_alert:'behaviour alert',
-  al:{nomix:'Do not mix with other animals',strangers:'Aggressive with strangers',bites:'May bite',escapes:'Escapes',fearful:'Fearful',cats:'Reactive with cats',muzzle:'Needs a muzzle'},
-  m_alone:'⚠ Do not mix with other animals: it has to be alone in its kennel', al_back:'Go back and choose another option.',
+  alerts:'Alerts', al_note:'Details (optional)', al_ph:'E.g. pulls hard, keep away from the gate', lg_alert:'behaviour alert', al_old:'no longer used',
+  al:{nomix:"Don't mix with other dogs",strangers:'Aggressive with strangers',bites:'May bite',escapes:'Escapes',fearful:'Fearful',lead:'Walk on a lead',cats:'Reactive with cats',muzzle:'Needs a muzzle'},
+  m_alone:"⚠ Don't mix with other dogs: it has to be alone in its kennel", al_back:'Go back and choose another option.',
   busy_start:'Loading…', busy_login:'Signing in…', busy_load:'Updating…', busy_save:'Saving…',
 },
 es:{
@@ -568,15 +585,22 @@ es:{
   add_dog:'+ Añadir perro', add_cat:'+ Añadir gato', new_pet:{dog:'Perro nuevo',cat:'Gato nuevo'}, stay_for:'Nueva estancia para este cliente', recent_stays:'Últimas estancias', no_stays:'Aún no tiene estancias.',
   st_local:'Guardado solo en este aparato.', st_shared:'Base de datos compartida', logout:'Cerrar sesión',
   login_title:'Iniciar sesión', login_sub:'Usa el correo y la contraseña que te dieron.', email:'Correo', password:'Contraseña', login_btn:'Entrar', login_bad:'Correo o contraseña incorrectos.',
+  forgot:'¿Has olvidado tu contraseña?', forgot_need:'Escribe primero tu correo arriba y vuelve a pulsar «¿Has olvidado tu contraseña?».',
+  forgot_sent:'Si ese correo tiene cuenta, le hemos enviado un enlace para elegir una contraseña nueva. Mira la bandeja de entrada y la de spam.',
+  forgot_fail:'No se pudo enviar el correo. Pide a Luis que te cambie la contraseña.', busy_forgot:'Enviando…',
+  rec_title:'Elige una contraseña nueva', rec_sub:'Escribe la misma contraseña nueva dos veces. Mínimo 6 caracteres.', rec_new:'Contraseña nueva', rec_again:'Repite la contraseña nueva',
+  rec_btn:'Guardar contraseña nueva', rec_short:'La contraseña tiene que tener al menos 6 caracteres.', rec_diff:'Las dos contraseñas no son iguales. Escríbelas otra vez.',
+  rec_same:'La contraseña nueva tiene que ser distinta de la anterior.', rec_fail:'No se pudo guardar la contraseña. Inténtalo otra vez.',
+  rec_bad:'Este enlace ha caducado o ya se usó. Escribe tu correo y pulsa «¿Has olvidado tu contraseña?» para recibir otro.', rec_ok:'Contraseña cambiada', rec_back:'Volver a iniciar sesión',
   booked_by:'Reservado por', last_change:'Último cambio', by_who:w=>`por ${w}`,
   del_client:'Eliminar cliente', del_q:n=>`¿Eliminar a ${n}?`, del_what:(p,b)=>`Se borrarán también ${p} mascota${p===1?'':'s'}, ${b} estancia${b===1?'':'s'} y todas sus observaciones. No se puede deshacer.`,
   del_active:'Este cliente tiene una estancia ahora o próximamente. También se borrará.', yes_del:'Sí, eliminar', client_deleted:'Cliente eliminado',
   med_from:'Tratamiento desde', med_to:'Hasta (último día)', med_hint:'Deja las fechas vacías si lo toma siempre, sin fecha de fin.', med_err:'El último día tiene que ser igual o posterior al primero.',
   med_day:(n,t)=>`Día ${n} de ${t}`, med_ends:d=>`termina ${d}`, med_last:'Último día', med_ended:d=>`Terminó ${d}`, med_starts:d=>`Empieza ${d}`,
   db_err:'No se pudo guardar', db_down:'No se pudo conectar con la base de datos.', retry:'Reintentar',
-  alerts:'Alertas', al_note:'Detalles (opcional)', al_ph:'Ej.: sacarlo siempre con correa corta', lg_alert:'alerta de comportamiento',
-  al:{nomix:'No mezclar con otros animales',strangers:'Agresivo con desconocidos',bites:'Puede morder',escapes:'Se escapa',fearful:'Miedoso',cats:'Reactivo con gatos',muzzle:'Necesita bozal'},
-  m_alone:'⚠ No mezclar con otros animales: tiene que ir solo en su jaula', al_back:'Vuelve atrás y elige otra opción.',
+  alerts:'Alertas', al_note:'Detalles (opcional)', al_ph:'Ej.: tira mucho, no acercarlo a la puerta', lg_alert:'alerta de comportamiento',
+  al:{nomix:'No mezclar con otros perros',strangers:'Agresivo con desconocidos',bites:'Puede morder',escapes:'Se escapa',fearful:'Miedoso',lead:'Sacar con correa',cats:'Reactivo con gatos',muzzle:'Necesita bozal'}, al_old:'ya no se usa',
+  m_alone:'⚠ No mezclar con otros perros: tiene que ir solo en su jaula', al_back:'Vuelve atrás y elige otra opción.',
   busy_start:'Cargando…', busy_login:'Entrando…', busy_load:'Actualizando…', busy_save:'Guardando…',
 }};
 const LS={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
@@ -668,7 +692,12 @@ async function loadSupabase(){
 }
 const Remote={
   sb:null,
-  async init(){const mk=window.__pptCreateClient||await loadSupabase();this.sb=mk(SUPABASE.url,SUPABASE.anonKey)},
+  async init(){const mk=window.__pptCreateClient||await loadSupabase();this.sb=mk(SUPABASE.url,SUPABASE.anonKey);
+    /* listen at once: the client reads the e-mail link while it starts and only then says PASSWORD_RECOVERY */
+    this.sb.auth.onAuthStateChange(ev=>{if(ev==='PASSWORD_RECOVERY')startRecovery()})},
+  /* the link in the e-mail comes back to the address the app is being used from (no fixed address here) */
+  async resetPw(email){const r=await this.sb.auth.resetPasswordForEmail(email,{redirectTo:window.location.origin+window.location.pathname});if(r.error)throw r.error},
+  async setPw(password){const r=await this.sb.auth.updateUser({password});if(r.error)throw r.error;return r.data&&r.data.user},
   async session(){const r=await this.sb.auth.getSession();return r.data?r.data.session:null},
   async signIn(email,password){const r=await this.sb.auth.signInWithPassword({email,password});if(r.error)throw r.error;return r.data.session},
   async signOut(){await this.sb.auth.signOut()},
@@ -716,7 +745,7 @@ const Store={
   _touch(x){x.ub=this.user;x.uAt=new Date().toISOString();return x},
   addFamily(name,phone){const f=Object.assign({id:uuid(),name,phone:phone||''},this._new());families.push(f);this._run(()=>DB.insertFamily(f));return f.id},
   updateFamily(id,patch){const f=this._touch(famById(id));Object.assign(f,patch);this._run(()=>DB.updateFamily(f))},
-  addPet(fam,species,d){const x={id:uuid(),fam,species,name:d.name,breed:d.breed||'',size:species==='cat'?'C':(d.size||breedSize(d.breed)),food:d.food||'',meds:d.meds||'',notes:d.notes||'',medStart:d.medStart||'',medEnd:d.medEnd||'',alerts:(d.alerts||[]).slice(),alertsNote:d.alertsNote||''};Object.assign(x,this._new());pets.push(x);this._run(()=>DB.insertPet(x));return x.id},
+  addPet(fam,species,d){const x={id:uuid(),fam,species,name:d.name,breed:d.breed||'',size:species==='cat'?'C':(d.size||breedSize(d.breed)),food:d.food||'',meds:d.meds||'',notes:d.notes||'',medStart:d.medStart||'',medEnd:d.medEnd||'',alerts:(d.alerts||[]).filter(k=>!(species==='cat'&&k==='nomix')),alertsNote:d.alertsNote||''};Object.assign(x,this._new());pets.push(x);this._run(()=>DB.insertPet(x));return x.id},
   updatePet(id,patch){const d=this._touch(petById(id));Object.assign(d,patch);this._run(()=>DB.updatePet(d))},
   addBooking(fam,ids,cage,s,e,svc){const b={id:uuid(),fam,pets:ids,cage,start:s,end:e,groom:(svc&&svc.groom)||[],vet:(svc&&svc.vet)||[]};Object.assign(b,this._new());bookings.push(b);this._run(()=>DB.insertBooking(b));return b},
   moveBooking(id,cage){const b=this._touch(bookings.find(x=>x.id===id));b.cage=cage;this._run(()=>DB.updateBooking(b))},
@@ -771,10 +800,15 @@ const bSizes=b=>b.sizes||bPets(b).map(d=>d.size);
 const bSp=b=>CAGE[b.cage].sp;
 const bks=k=>bookings.filter(b=>bSp(b)===k);
 const covers=(b,d)=>b.start<=d&&d<b.end;
-/* behaviour alerts: "nomix" = the animal has to be alone in its kennel, even with its own family */
-const ALERTS=['nomix','strangers','bites','escapes','fearful','cats','muzzle'];
-const isLone=p=>!!(p&&p.alerts&&p.alerts.includes('nomix'));
-const hasAlert=p=>!!(p&&((p.alerts&&p.alerts.length)||p.alertsNote));
+/* behaviour alerts: "nomix" = the dog has to be alone in its kennel, even with its own family.
+   Cats never get "nomix": they only share with their own family anyway.
+   OLD_ALERTS are no longer offered, but a pet that already has one still shows it until someone switches it off. */
+const ALERTS=['nomix','strangers','bites','escapes','fearful','lead'];
+const OLD_ALERTS=['cats','muzzle'];
+const alertsFor=sp=>sp==='cat'?ALERTS.filter(k=>k!=='nomix'):ALERTS;
+const petAlerts=p=>((p&&Array.isArray(p.alerts))?p.alerts:[]).filter(k=>typeof k==='string'&&T.al[k]&&!(k==='nomix'&&p.species==='cat'));
+const isLone=p=>!!(p&&p.species!=='cat'&&Array.isArray(p.alerts)&&p.alerts.includes('nomix'));
+const hasAlert=p=>!!(p&&(petAlerts(p).length||p.alertsNote));
 const bLone=b=>b.pets?bPets(b).some(isLone):!!b.lone;      /* real booking → its pets · planned one → its flag */
 /* returns null if these animals fit in kennel c for [s,e), otherwise a reason key.
    lone = one of these animals must not share the kennel */
@@ -930,6 +964,13 @@ let calStart=add(TODAY,-3);
 const DAYS=21;
 const MAXD=6;            /* most animals in one booking (same family) */
 let authing=false;       /* true while the sign-in screen is showing */
+let recovering=false;    /* true while the "new password" screen is showing (came from the e-mail link) */
+let loginNote='';        /* red message shown on the sign-in screen (e.g. the e-mail link has expired) */
+let booted=false;
+function startRecovery(){
+  if(recovering)return;recovering=true;document.body.classList.add('authing');
+  if(booted){closeSheet();render()}
+}
 let cq='';               /* search text in Clients */
 const blankPet=()=>({name:'',breed:'',size:'M',food:'',meds:'',notes:'',medStart:'',medEnd:'',alerts:[],alertsNote:'',svc:{groom:false,vet:false}});
 const freshNB=()=>({s:add(TODAY,1),e:add(TODAY,4),client:null,q:'',picked:[],nNew:1,news:Array.from({length:MAXD},blankPet),svcSaved:{groom:{},vet:{}},fname:'',phone:'',step:1,opt:null,opts:[]});
@@ -946,14 +987,16 @@ const names=b=>bPets(b).map(d=>d.name).join(' + ');
 const petLine=p=>[esc(breedLabel(p.breed)),p.species==='cat'?T.sp1.cat:T.sizes[p.size]].filter(Boolean).join(' · ');
 const stayState=b=>b.end<=TODAY?'st_done':b.start>TODAY?'st_next':'st_in';
 /* behaviour alerts: the red box shown first, and the toggle buttons of the forms (data-i = new pet in "New stay") */
-const alertText=p=>[(p.alerts||[]).map(k=>T.al[k]||esc(k)).join(', '),esc(p.alertsNote)].filter(Boolean).join(' — ');
+const alertText=p=>[petAlerts(p).map(k=>T.al[k]).join(', '),esc(p.alertsNote)].filter(Boolean).join(' — ');
 function alertBox(p,withName){
   if(!hasAlert(p))return '';
-  return `<div class="alerts" role="note"><b>⚠ ${T.alerts}${withName?` · ${esc(p.name)}`:''}</b>${p.alerts.length?`<div class="altags">${p.alerts.map(k=>`<span class="chip">${T.al[k]||esc(k)}</span>`).join('')}</div>`:''}${p.alertsNote?`<p>${esc(p.alertsNote)}</p>`:''}</div>`;
+  const ks=petAlerts(p);
+  return `<div class="alerts" role="note"><b>⚠ ${T.alerts}${withName?` · ${esc(p.name)}`:''}</b>${ks.length?`<div class="altags">${ks.map(k=>`<span class="chip">${T.al[k]}</span>`).join('')}</div>`:''}${p.alertsNote?`<p>${esc(p.alertsNote)}</p>`:''}</div>`;
 }
-const alertFields=(px,x,i)=>`<div class="field"><span class="flab">⚠ ${T.alerts}</span>
-  <div class="seg alseg" role="group" aria-label="${T.alerts}">${ALERTS.map(k=>`<button type="button" data-act="altag" data-k="${k}"${i===undefined?'':` data-i="${i}"`} aria-pressed="${(x.alerts||[]).includes(k)}">${T.al[k]}</button>`).join('')}</div>
-  <label class="hint" for="${px}-alnote">${T.al_note}</label><input id="${px}-alnote" value="${esc(x.alertsNote)}" placeholder="${T.al_ph}" maxlength="300" autocomplete="off"></div>`;
+const alertFields=(px,x,i,sp)=>{const has=Array.isArray(x.alerts)?x.alerts:[],old=OLD_ALERTS.filter(k=>has.includes(k));
+  return `<div class="field"><span class="flab">⚠ ${T.alerts}</span>
+  <div class="seg alseg" role="group" aria-label="${T.alerts}">${alertsFor(sp).concat(old).map(k=>`<button type="button" data-act="altag" data-k="${k}"${i===undefined?'':` data-i="${i}"`} aria-pressed="${has.includes(k)}">${T.al[k]}${old.includes(k)?` (${T.al_old})`:''}</button>`).join('')}</div>
+  <label class="hint" for="${px}-alnote">${T.al_note}</label><input id="${px}-alnote" value="${esc(x.alertsNote)}" placeholder="${T.al_ph}" maxlength="300" autocomplete="off"></div>`};
 const pressedAlerts=sel=>$$(sel).filter(b=>b.getAttribute('aria-pressed')==='true').map(b=>b.dataset.k);
 
 /* waiting for Supabase: a small trotting dog, or a cat when the app is showing cats */
@@ -1031,7 +1074,7 @@ function syncForms(){
 }
 /* re-draw after fresh data arrives, but never under someone who is typing or has a sheet open */
 function softRender(){
-  if(authing||drag.active||$('#sheetRoot').innerHTML)return;
+  if(authing||recovering||drag.active||$('#sheetRoot').innerHTML)return;
   const a=document.activeElement;if(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName))return;
   if(view==='today'||view==='cal'||view==='clients')render();
 }
@@ -1040,6 +1083,7 @@ function softRender(){
    7. VIEWS
    ============================================================ */
 function render(){
+  if(recovering){main.innerHTML=viewRecover();const f=$('#rp-1');if(f)f.focus();return}
   if(authing){main.innerHTML=viewLogin();return}
   $$('.tab').forEach(t=>t.removeAttribute('aria-current'));
   const tab=$(`.tab[data-view="${view}"]`);if(tab)tab.setAttribute('aria-current','page');
@@ -1054,8 +1098,19 @@ function viewLogin(){
   <div class="card" data-enter='[data-act="login"]'>
    <div class="field"><label for="li-email">${T.email}</label><input id="li-email" type="email" autocomplete="username" inputmode="email"></div>
    <div class="field"><label for="li-pass">${T.password}</label><input id="li-pass" type="password" autocomplete="current-password"></div>
-   <div id="li-err"></div>
+   <div id="li-err">${loginNote?`<div class="err">${loginNote}</div>`:''}</div>
    <button class="btn primary" type="button" data-act="login">${T.login_btn}</button>
+   <button class="btn wide" type="button" data-act="forgot">${T.forgot}</button>
+  </div>`;
+}
+/* reached from the link in the password e-mail */
+function viewRecover(){
+  return `<h1>${T.rec_title}</h1><p class="sub">${T.rec_sub}</p>
+  <div class="card" data-enter='[data-act="setpw"]'>
+   <div class="field"><label for="rp-1">${T.rec_new}</label><input id="rp-1" type="password" autocomplete="new-password" minlength="6"></div>
+   <div class="field"><label for="rp-2">${T.rec_again}</label><input id="rp-2" type="password" autocomplete="new-password" minlength="6"></div>
+   <div id="rp-err"></div>
+   <button class="btn primary" type="button" data-act="setpw">${T.rec_btn}</button>
   </div>`;
 }
 
@@ -1157,7 +1212,7 @@ function cageBars(c){
 /* ---------- New stay: step 1 (dates · who · space) ---------- */
 const nbPicked=()=>nb.picked.map(petById).filter(Boolean);
 const nbSizes=()=>nbPicked().map(p=>p.size).concat(Array.from({length:nb.nNew},(_,i)=>sp==='cat'?'C':nb.news[i].size));
-const nbLones=()=>nbPicked().map(isLone).concat(Array.from({length:nb.nNew},(_,i)=>isLone(nb.news[i])));
+const nbLones=()=>nbPicked().map(isLone).concat(Array.from({length:nb.nNew},(_,i)=>isLone(Object.assign({},nb.news[i],{species:sp}))));
 const nbLabels=()=>nbPicked().map(p=>esc(p.name)).concat(Array.from({length:nb.nNew},(_,i)=>esc(nb.news[i].name)||T.new_n(sp,i+1)));
 function sizeSeg(i,cur){return `<div class="seg" role="group" aria-label="${T.size}">${ALL.map(z=>`<button type="button" data-act="nbsize" data-i="${i}" data-z="${z}" aria-pressed="${cur===z}"><span class="sz ${z}">${T.sl[z]}</span>${T.sizes[z]}</button>`).join('')}</div>`}
 function countSeg(from,to,cur){let h='';for(let k=from;k<=to;k++)h+=`<button type="button" data-act="nbn" data-n="${k}" aria-pressed="${cur===k}" class="num">${k}</button>`;return `<div class="seg">${h}</div>`}
@@ -1180,7 +1235,7 @@ function viewNew(){
   if(sp==='dog')for(let i=0;i<nb.nNew;i++)rows+=`<div class="newpet"><span class="flab">${T.new_n(sp,i+1)}</span><input id="nb-b${i}" maxlength="80" list="breeds" value="${esc(breedLabel(nb.news[i].breed))}" placeholder="${T.breed_opt}" autocomplete="off" autocapitalize="words">${sizeSeg(i,nb.news[i].size)}</div>`;
   return `<h1>${T.new_title}</h1><p class="sub">${T.new_sub}</p>${spSwitch()}
   <div class="card"><p class="step"><i>1</i>${T.s_dates}</p>
-   <div class="grid2"><div class="field"><label for="nb-s">${T.checkin}</label><input type="date" id="nb-s" value="${nb.s}"></div><div class="field"><label for="nb-e">${T.checkout}</label><input type="date" id="nb-e" value="${nb.e}"></div></div>
+   <div class="grid2 dates"><div class="field"><label for="nb-s">${T.checkin}</label><input type="date" id="nb-s" value="${nb.s}"></div><div class="field"><label for="nb-e">${T.checkout}</label><input type="date" id="nb-e" value="${nb.e}"></div></div>
    <span class="hint" id="nb-nights"></span></div>
   <div class="card"><p class="step"><i>2</i>${T.s_who[sp]}</p>${who}${rows}</div>
   <div class="card"><p class="step"><i>3</i>${T.s_space}</p><div id="nb-res"></div></div>`;
@@ -1230,7 +1285,7 @@ function nbResults(){
 /* ---------- New stay: step 2 (details and save) ---------- */
 const svcFields=(key,get)=>`<span class="flab">${T.extras}</span>`+svcFor(sp).map(s=>`<div class="grow"><span class="flab">${s.icon} ${T[s.k]}</span><div class="seg" role="group" aria-label="${T[s.k]}">${[0,1].map(v=>`<button type="button" data-act="nbsvc" data-s="${s.k}" data-k="${key}" data-v="${v}" aria-pressed="${!!get(s.k)===!!v}">${v?T.yes:T.no}</button>`).join('')}</div></div>`).join('');
 /* optional first / last day of a treatment */
-const medDates=(px,d)=>`<div class="grid2"><div class="field"><label for="${px}-ms">${T.med_from}</label><input type="date" id="${px}-ms" value="${d.medStart||''}"></div><div class="field"><label for="${px}-me">${T.med_to}</label><input type="date" id="${px}-me" value="${d.medEnd||''}"></div></div><span class="hint" style="margin-top:-6px">${T.med_hint}</span>`;
+const medDates=(px,d)=>`<div class="grid2 dates"><div class="field"><label for="${px}-ms">${T.med_from}</label><input type="date" id="${px}-ms" value="${d.medStart||''}"></div><div class="field"><label for="${px}-me">${T.med_to}</label><input type="date" id="${px}-me" value="${d.medEnd||''}"></div></div><span class="hint" style="margin-top:-6px">${T.med_hint}</span>`;
 /* tidy the dates before saving: no medication = no dates; an end with no start starts on dflt */
 function fixMed(d,dflt){
   if(!d.meds){d.medStart='';d.medEnd='';return null}
@@ -1252,7 +1307,7 @@ function viewNewDetails(){
   for(let i=0;i<nb.nNew;i++){const d=nb.news[i];
     h+=`<div class="card"><p class="step">${T.new_n(sp,i+1)}</p>
      <div class="field"><label for="nd-p${i}-name">${T.name}</label><input id="nd-p${i}-name" maxlength="80" value="${esc(d.name)}" autocomplete="off" autocapitalize="words"></div>
-     ${alertFields(`nd-p${i}`,d,i)}
+     ${alertFields(`nd-p${i}`,d,i,sp)}
      <div class="field"><label for="nd-p${i}-breed">${T.breed}</label><input id="nd-p${i}-breed" maxlength="80" ${sp==='dog'?'list="breeds"':''} value="${esc(breedLabel(d.breed))}" placeholder="${T.breed_ph}" autocomplete="off" autocapitalize="words"></div>
      ${sp==='dog'?`<div class="field"><label for="nd-p${i}-size">${T.size}</label><select id="nd-p${i}-size">${ALL.map(z=>`<option value="${z}"${z===d.size?' selected':''}>${T.sizes[z]}</option>`).join('')}</select></div>`:''}
      <div class="field"><label for="nd-p${i}-food">${T.food}</label><input id="nd-p${i}-food" maxlength="200" value="${esc(d.food)}"></div>
@@ -1394,7 +1449,7 @@ function openStay(id,edit){
     const sibs=sibsOf(b);
     sheet(T.edit_stay,head(T.edit_stay,`${esc(names(b))} · ${esc(f.name)} · ${cname(c)}`,back)+`
      <div class="card" style="margin-top:12px">
-      <div class="grid2"><div class="field"><label for="es-s">${T.checkin}</label><input type="date" id="es-s" value="${b.start}"></div><div class="field"><label for="es-e">${T.checkout}</label><input type="date" id="es-e" value="${b.end}"></div></div>
+      <div class="grid2 dates"><div class="field"><label for="es-s">${T.checkin}</label><input type="date" id="es-s" value="${b.start}"></div><div class="field"><label for="es-e">${T.checkout}</label><input type="date" id="es-e" value="${b.end}"></div></div>
       ${sibs.length?`<label class="chk"><input type="checkbox" id="es-sibs" checked><span>${T.also_change(sibs.map(x=>`${esc(names(x))} (${cname(x.cage)})`).join(', '))}</span></label>`:''}
       <div id="es-err"></div>
       <div class="actions" style="margin-top:0"><button class="btn primary" type="button" data-act="savestay" data-b2="${b.id}">${T.save}</button><button class="btn" type="button" data-act="back" data-to="${back}">${T.cancel}</button></div>
@@ -1443,7 +1498,7 @@ function petForm(d,fam,species,back){
   const x=d||blankPet(),dog=species==='dog';
   return `<div class="card" id="pf" style="margin-top:12px" data-enter='[data-act="savepet"]'>
    <div class="field"><label for="pf-name">${T.name}</label><input id="pf-name" maxlength="80" value="${esc(x.name)}" autocomplete="off" autocapitalize="words"></div>
-   ${alertFields('pf',x)}
+   ${alertFields('pf',x,undefined,species)}
    <div class="field"><label for="pf-breed">${T.breed}</label><input id="pf-breed" maxlength="80" ${dog?'list="breeds"':''} value="${esc(breedLabel(x.breed))}" placeholder="${T.breed_ph}" autocomplete="off" autocapitalize="words"></div>
    ${dog?`<div class="field"><label for="pf-size">${T.size}</label><select id="pf-size">${ALL.map(z=>`<option value="${z}"${z===x.size?' selected':''}>${T.sizes[z]}</option>`).join('')}</select><span class="hint">${T.size_hint}</span></div>`:''}
    <div class="field"><label for="pf-food">${T.food}</label><input id="pf-food" maxlength="200" value="${esc(x.food)}"></div>
@@ -1675,6 +1730,28 @@ document.addEventListener('click',e=>{
       const em=$('#li-email').value.trim(),pw=$('#li-pass').value,box=$('#li-err');box.innerHTML=loadingView('login',true);t.disabled=true;
       Remote.signIn(em,pw).then(async s=>{Store.user=(s&&s.user&&s.user.email)||em;authing=false;document.body.classList.remove('authing');main.innerHTML=loadingView('start');await Store.load();startSync();render()})
         .catch(err=>{console.error(err);if(authing){t.disabled=false;box.innerHTML=`<div class="err">${T.login_bad}</div>`}else{main.innerHTML=`<div class="no"><b>${T.db_down}</b><br>${esc(err.message||err)}</div><div class="actions"><button class="btn blue" type="button" data-act="retry">${T.retry}</button></div>`}});break}
+    case 'forgot':{
+      const em=$('#li-email').value.trim(),box=$('#li-err');
+      if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)){box.innerHTML=`<div class="err">${T.forgot_need}</div>`;$('#li-email').focus();break}
+      t.disabled=true;box.innerHTML=loadingView('forgot',true);
+      Remote.resetPw(em).then(()=>{box.innerHTML=`<div class="okbox" role="status">${T.forgot_sent}</div>`})
+        .catch(err=>{console.error(err);box.innerHTML=`<div class="err" role="alert">${T.forgot_fail}</div>`})   /* no SMTP yet: send errors and the hourly limit end here */
+        .finally(()=>{t.disabled=false});break}
+    case 'setpw':{
+      const p1=$('#rp-1').value,p2=$('#rp-2').value,box=$('#rp-err'),bad=m=>{box.innerHTML=`<div class="err" role="alert">${m}</div>`};
+      if(p1.length<6){bad(T.rec_short);$('#rp-1').focus();break}
+      if(p1!==p2){bad(T.rec_diff);$('#rp-2').value='';$('#rp-2').focus();break}
+      t.disabled=true;box.innerHTML=loadingView('save',true);
+      Remote.setPw(p1).then(async u=>{
+        recovering=false;authing=false;loginNote='';document.body.classList.remove('authing');
+        try{history.replaceState(null,'',location.pathname+'#today')}catch(e){}
+        toast(T.rec_ok);Store.user=(u&&u.email)||Store.user;main.innerHTML=loadingView('start');await Store.load();startSync();render()})
+        .catch(err=>{console.error(err);t.disabled=false;const c=(err&&(err.code||err.name))||'',m=String(err&&err.message||'');
+          if(c==='same_password'||/different from the old/i.test(m))bad(T.rec_same);
+          else if(c==='weak_password'||/at least/i.test(m))bad(T.rec_short);
+          else if(/session|jwt|expired|AuthSessionMissing/i.test(c+' '+m))bad(T.rec_bad+` <button class="btn sm" type="button" data-act="recback">${T.rec_back}</button>`);
+          else bad(T.rec_fail)});break}
+    case 'recback':recovering=false;authing=true;loginNote='';try{history.replaceState(null,'',location.pathname)}catch(e){}Promise.resolve(Remote.signOut()).catch(()=>{});render();break;
     case 'logout':Promise.resolve(Remote.signOut()).catch(()=>{}).then(()=>location.reload());break;
     case 'retry':location.reload();break;
   }
@@ -1683,13 +1760,19 @@ document.addEventListener('input',e=>{
   const id=e.target.id||'';
   if(id==='nb-q'){nb.q=e.target.value;nbClientList()}
   if(id==='cl-q'){cq=e.target.value;clientList()}
+  if(id==='nb-s'||id==='es-s')fixOut(id);
   if(id==='nb-s'||id==='nb-e'){nb.s=$('#nb-s').value;nb.e=$('#nb-e').value;nbResults()}
   const m=id.match(/^nb-b(\d)$/);
   if(m){const d=nb.news[Number(m[1])];d.breed=breedKey(e.target.value);const x=breedFind(e.target.value);
     if(x&&x[2]!==d.size){d.size=x[2];$$(`[data-act="nbsize"][data-i="${m[1]}"]`).forEach(b=>b.setAttribute('aria-pressed',b.dataset.z===d.size));nbResults()}}
   if(id==='pf-breed'){const x=breedFind(e.target.value),s=$('#pf-size');if(x&&s)s.value=x[2]}
 });
-document.addEventListener('change',e=>{const id=e.target.id||'';if(id==='nb-s'||id==='nb-e'){nb.s=$('#nb-s').value;nb.e=$('#nb-e').value;nbResults()}});
+/* a check-in on or after the check-out moves the check-out to the day after the check-in */
+function fixOut(id){
+  const si=$('#'+id),so=$('#'+id.replace(/-s$/,'-e'));if(!si||!so)return;
+  if(si.value&&so.value&&si.value>=so.value)so.value=add(si.value,1);
+}
+document.addEventListener('change',e=>{const id=e.target.id||'';if(id==='nb-s'||id==='es-s')fixOut(id);if(id==='nb-s'||id==='nb-e'){nb.s=$('#nb-s').value;nb.e=$('#nb-e').value;nbResults()}});
 /* nothing submits natively (some embedded previews block forms): buttons and Enter are handled here */
 document.addEventListener('submit',e=>e.preventDefault());
 document.addEventListener('keydown',e=>{
@@ -1706,7 +1789,7 @@ document.addEventListener('keydown',e=>{
 let syncOn=false;
 function startSync(){
   if(syncOn||DB===Local)return;syncOn=true;
-  const tick=async()=>{if(document.hidden||saving||authing)return;await Store.refresh();softRender()};
+  const tick=async()=>{if(document.hidden||saving||authing||recovering)return;await Store.refresh();softRender()};
   setInterval(tick,30000);
   document.addEventListener('visibilitychange',tick);
 }
@@ -1714,12 +1797,19 @@ async function boot(){
   document.documentElement.lang=lang;
   if(LS.get('ppt.big')==='1')document.body.classList.add('big');
   if(location.search.includes('reset')){LS.del(Local.KEY);try{history.replaceState(null,'',location.pathname+location.hash)}catch(e){}}
+  /* the e-mail link comes back with "type=recovery" (or an error if it expired) in the address */
+  const back=location.hash+'&'+location.search;
+  if(/type=recovery/.test(back))recovering=true;
+  if(/error_code=|error=access_denied/.test(back)){recovering=false;loginNote=T.rec_bad;try{history.replaceState(null,'',location.pathname)}catch(e){}}
   chrome();
   if(SUPABASE.url&&SUPABASE.anonKey){
     main.innerHTML=loadingView('start');
     try{
       await Remote.init();DB=Remote;
       const s=await Remote.session();
+      booted=true;
+      if(recovering&&!s){recovering=false;loginNote=T.rec_bad}
+      if(recovering){document.body.classList.add('authing');render();return}
       if(!s){authing=true;document.body.classList.add('authing');render();return}
       Store.user=(s.user&&s.user.email)||'';
       await Store.load();startSync();
@@ -1729,7 +1819,7 @@ async function boot(){
       return;
     }
   }else{await Store.load()}
-  render();
+  booted=true;render();
 }
 boot();
 </script>
