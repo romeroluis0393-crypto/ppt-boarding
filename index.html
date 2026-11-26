@@ -513,7 +513,7 @@ en:{
   med_day:(n,t)=>`Day ${n} of ${t}`, med_ends:d=>`ends ${d}`, med_last:'Last day', med_ended:d=>`Finished ${d}`, med_starts:d=>`Starts ${d}`,
   db_err:'Could not save', db_down:'Could not reach the database.', retry:'Try again',
   alerts:'Alerts', al_note:'Details (optional)', al_ph:'E.g. pulls hard, keep away from the gate', lg_alert:'behaviour alert', al_old:'no longer used',
-  al:{nomix:"Don't mix with other dogs",strangers:'Aggressive with strangers',bites:'May bite',escapes:'Escapes',fearful:'Fearful',lead:'Walk on a lead',cats:'Reactive with cats',muzzle:'Needs a muzzle'},
+  al:{nomix:"Don't mix with other dogs",strangers:'Aggressive with strangers',bites:'May bite',scratch:'May scratch',escapes:'Escapes',fearful:'Fearful',lead:'Walk on a lead',cats:'Reactive with cats',muzzle:'Needs a muzzle'},
   m_alone:"⚠ Don't mix with other dogs: it has to be alone in its kennel", al_back:'Go back and choose another option.',
   busy_start:'Loading…', busy_login:'Signing in…', busy_load:'Updating…', busy_save:'Saving…',
 },
@@ -599,7 +599,7 @@ es:{
   med_day:(n,t)=>`Día ${n} de ${t}`, med_ends:d=>`termina ${d}`, med_last:'Último día', med_ended:d=>`Terminó ${d}`, med_starts:d=>`Empieza ${d}`,
   db_err:'No se pudo guardar', db_down:'No se pudo conectar con la base de datos.', retry:'Reintentar',
   alerts:'Alertas', al_note:'Detalles (opcional)', al_ph:'Ej.: tira mucho, no acercarlo a la puerta', lg_alert:'alerta de comportamiento',
-  al:{nomix:'No mezclar con otros perros',strangers:'Agresivo con desconocidos',bites:'Puede morder',escapes:'Se escapa',fearful:'Miedoso',lead:'Sacar con correa',cats:'Reactivo con gatos',muzzle:'Necesita bozal'}, al_old:'ya no se usa',
+  al:{nomix:'No mezclar con otros perros',strangers:'Agresivo con desconocidos',bites:'Puede morder',scratch:'Puede arañar',escapes:'Se escapa',fearful:'Miedoso',lead:'Sacar con correa',cats:'Reactivo con gatos',muzzle:'Necesita bozal'}, al_old:'ya no se usa',
   m_alone:'⚠ No mezclar con otros perros: tiene que ir solo en su jaula', al_back:'Vuelve atrás y elige otra opción.',
   busy_start:'Cargando…', busy_login:'Entrando…', busy_load:'Actualizando…', busy_save:'Guardando…',
 }};
@@ -802,10 +802,11 @@ const bks=k=>bookings.filter(b=>bSp(b)===k);
 const covers=(b,d)=>b.start<=d&&d<b.end;
 /* behaviour alerts: "nomix" = the dog has to be alone in its kennel, even with its own family.
    Cats never get "nomix": they only share with their own family anyway.
-   OLD_ALERTS are no longer offered, but a pet that already has one still shows it until someone switches it off. */
-const ALERTS=['nomix','strangers','bites','escapes','fearful','lead'];
-const OLD_ALERTS=['cats','muzzle'];
-const alertsFor=sp=>sp==='cat'?ALERTS.filter(k=>k!=='nomix'):ALERTS;
+   An alert that is not (or no longer) in the list for the pet's species ("Reactive with cats", "Needs a muzzle",
+   or "May bite" / "Walk on a lead" on a cat) is still shown, and in the form it appears switched on and marked
+   "no longer used" until someone switches it off and saves. */
+const ALERTS={dog:['nomix','strangers','bites','escapes','fearful','lead'],cat:['strangers','scratch','escapes','fearful']};
+const alertsFor=sp=>ALERTS[sp]||ALERTS.dog;
 const petAlerts=p=>((p&&Array.isArray(p.alerts))?p.alerts:[]).filter(k=>typeof k==='string'&&T.al[k]&&!(k==='nomix'&&p.species==='cat'));
 const isLone=p=>!!(p&&p.species!=='cat'&&Array.isArray(p.alerts)&&p.alerts.includes('nomix'));
 const hasAlert=p=>!!(p&&(petAlerts(p).length||p.alertsNote));
@@ -993,7 +994,7 @@ function alertBox(p,withName){
   const ks=petAlerts(p);
   return `<div class="alerts" role="note"><b>⚠ ${T.alerts}${withName?` · ${esc(p.name)}`:''}</b>${ks.length?`<div class="altags">${ks.map(k=>`<span class="chip">${T.al[k]}</span>`).join('')}</div>`:''}${p.alertsNote?`<p>${esc(p.alertsNote)}</p>`:''}</div>`;
 }
-const alertFields=(px,x,i,sp)=>{const has=Array.isArray(x.alerts)?x.alerts:[],old=OLD_ALERTS.filter(k=>has.includes(k));
+const alertFields=(px,x,i,sp)=>{const has=Array.isArray(x.alerts)?x.alerts:[],old=has.filter((k,j)=>typeof k==='string'&&T.al[k]&&has.indexOf(k)===j&&!alertsFor(sp).includes(k)&&!(k==='nomix'&&sp==='cat'));
   return `<div class="field"><span class="flab">⚠ ${T.alerts}</span>
   <div class="seg alseg" role="group" aria-label="${T.alerts}">${alertsFor(sp).concat(old).map(k=>`<button type="button" data-act="altag" data-k="${k}"${i===undefined?'':` data-i="${i}"`} aria-pressed="${has.includes(k)}">${T.al[k]}${old.includes(k)?` (${T.al_old})`:''}</button>`).join('')}</div>
   <label class="hint" for="${px}-alnote">${T.al_note}</label><input id="${px}-alnote" value="${esc(x.alertsNote)}" placeholder="${T.al_ph}" maxlength="300" autocomplete="off"></div>`};
